@@ -29,7 +29,7 @@ object MinerClass : PvPClass("Miner", 10, listOf())
     override fun getScoreboardLines(player: Player): List<String>
     {
         return listOf(
-            "${CC.BLUE}Class${CC.GRAY}: ${CC.RED}Miner",
+            "${CC.B_BLUE}Class${CC.GRAY}: ${CC.RED}Miner",
             " ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.BLUE}Diamonds: ${CC.RED}${DiamondPersistableMap[player.uniqueId] ?: 0}",
             " ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.BLUE}Cobble: ${CC.SEC}${TextUtil.stringifyBoolean(CobblestonePersistMap[player.uniqueId] ?: false)}"
         )

@@ -36,7 +36,7 @@ abstract class PvPClass(val name: String, val warmup: Int, val consumables: List
     open fun remove(player: Player) {}
     open fun canApply(player: Player) : Boolean {return true}
     open fun itemConsumed(player: Player, type: Material) : Boolean {return true}
-    open fun getScoreboardLines(player: Player) : List<String> {return listOf("${CC.BLUE}Class${CC.GRAY}: ${CC.RED}$name") }
+    open fun getScoreboardLines(player: Player) : List<String> {return listOf("${CC.B_BLUE}Class${CC.GRAY}: ${CC.RED}$name") }
 
     abstract fun qualifies(armor: PlayerInventory) : Boolean
     fun wearingAllArmor(armor: PlayerInventory) : Boolean {
