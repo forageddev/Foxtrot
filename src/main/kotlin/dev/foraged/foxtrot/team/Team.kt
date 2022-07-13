@@ -9,6 +9,7 @@ import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.ChatColor
 import org.bukkit.Location
 import org.bukkit.entity.Player
+import java.text.DecimalFormat
 import java.util.*
 
 abstract class Team(override val identifier: UUID, var name: String, var color: ChatColor = ChatColor.WHITE) : IDataStoreObject
@@ -17,6 +18,7 @@ abstract class Team(override val identifier: UUID, var name: String, var color: 
         val CHAT_PREFIX = "${CC.B_PRI}[Team] "
         const val MAX_CLAIMS = 2
         val ALLY_COLOR = CC.AQUA
+        val DTR_FORMAT = DecimalFormat("0.00")
         val SELECTION_WAND = ItemBuilder(XMaterial.GOLDEN_HOE)
             .name("${CC.GREEN}Claiming Wand")
             .setLore(listOf("",

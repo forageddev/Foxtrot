@@ -1,11 +1,15 @@
 package dev.foraged.foxtrot.team.impl
 
+import com.google.common.collect.ImmutableMap
+import dev.foraged.foxtrot.FoxtrotExtendedPlugin
 import dev.foraged.foxtrot.team.Team
 import dev.foraged.foxtrot.team.TeamHandler
 import dev.foraged.foxtrot.team.data.TeamMember
 import dev.foraged.foxtrot.team.data.TeamMemberRole
+import dev.foraged.foxtrot.team.dtr.RegenerationTask
 import gg.scala.store.storage.type.DataStoreStorageType
 import net.evilblock.cubed.util.CC
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import java.util.*
 
@@ -14,6 +18,9 @@ class PlayerTeam(identifier: UUID, name: String, val leader: TeamMember) : Team(
 {
     var balance: Double = 0.0
     var deathsUntilRaidable: Double = 1.01
+    val maxDeathsUntilRaidable : Double
+        get() = RegenerationTask.getMaxDTR(size)
+    var regenTime: Long = 0
     val members = mutableSetOf<TeamMember>()
     val raidable: Boolean
         get() = deathsUntilRaidable < 0
@@ -23,6 +30,8 @@ class PlayerTeam(identifier: UUID, name: String, val leader: TeamMember) : Team(
 
     val leaders: List<TeamMember>
         get() = members.filter { it.role == TeamMemberRole.CO_LEADER }
+
+    val size = members.size + 1
 
     val onlineMemberCount: Int
         get() {
@@ -43,6 +52,7 @@ class PlayerTeam(identifier: UUID, name: String, val leader: TeamMember) : Team(
                 val exactPlayer = member.getBukkitPlayer()
                 if (exactPlayer != null && !exactPlayer.hasMetadata("invisible")) players.add(exactPlayer)
             }
+            if (leader.getBukkitPlayer() != null) players.add(leader.getBukkitPlayer()!!)
             return players
         }
 
@@ -56,7 +66,6 @@ class PlayerTeam(identifier: UUID, name: String, val leader: TeamMember) : Team(
             }
             return players
         }
-
     val invites = mutableSetOf<UUID>()
 
     fun broadcast(message: String) {
@@ -104,6 +113,31 @@ class PlayerTeam(identifier: UUID, name: String, val leader: TeamMember) : Team(
          else if (isAlly(player.uniqueId)) CC.LIGHT_PURPLE + name
         else CC.RED + name
 
+    }
+
+    fun getDTRIncrement(): Double
+    {
+        return getDTRIncrement(onlineMemberCount)
+    }
+
+    fun getDTRIncrement(playersOnline: Int): Double
+    {
+        val dtrPerHour: Double = RegenerationTask.getBaseDTRIncrement(size) * playersOnline
+        return dtrPerHour / 60
+    }
+
+    fun playerDeath(playerName: String, dtrLoss: Double)
+    {
+        val newDTR = (deathsUntilRaidable - dtrLoss).coerceAtLeast(-.99)
+
+        broadcast("${CC.RED}Member Death: ${CC.WHITE}$playerName")
+        broadcast("${CC.RED}DTR: ${CC.WHITE}${DTR_FORMAT.format(newDTR)}")
+        deathsUntilRaidable = newDTR
+
+        deathsUntilRaidable = newDTR
+
+        regenTime = System.currentTimeMillis() + 3 * 60 * 1000
+        RegenerationTask.markOnDTRCooldown(this)
     }
 
     override fun saveEntry()

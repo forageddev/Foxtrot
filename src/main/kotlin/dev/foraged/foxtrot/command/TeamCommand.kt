@@ -20,6 +20,7 @@ import dev.foraged.foxtrot.team.data.TeamMemberRole
 import dev.foraged.foxtrot.team.enums.SystemFlag
 import dev.foraged.foxtrot.team.impl.PlayerTeam
 import dev.foraged.foxtrot.team.impl.SystemTeam
+import gg.scala.cache.uuid.ScalaStoreUuidCache
 import net.evilblock.cubed.menu.menus.SelectColorMenu
 import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.util.CC
@@ -105,6 +106,29 @@ object TeamCommand : GoodCommand()
         player.sendMessage(Serializers.gson.toJson(team))
     }
 
+    @Subcommand("invite")
+    fun invite(player: Player, target: UUID, @Default("self") team: Team) {
+        if (((team is PlayerTeam) && (team.isOwner(player.uniqueId) || team.isCaptain(player.uniqueId) || team.isCoLeader(player.uniqueId))) && !player.hasPermission("foxtrot.team.management")) throw ConditionFailedException("You are not an officer of ${team.name} so you cannot invite members to it.")
+        if (team is PlayerTeam) {
+            if (team.invites.contains(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} has already been invited to ${team.name}.")
+
+            team.invites.add(target)
+            team.broadcast("${CC.LIGHT_PURPLE}${player.name}${CC.YELLOW} has invited ${CC.LIGHT_PURPLE}${ScalaStoreUuidCache.username(target)}${CC.YELLOW} to the team!")
+        } else throw ConditionFailedException("Retard.")
+    }
+
+    @Subcommand("join")
+    fun join(player: Player, team: Team) {
+        if (team is SystemTeam) throw ConditionFailedException("You cannot join teams that are managed by the server.")
+        if (team is PlayerTeam)
+        {
+            if (!team.invites.contains(player.uniqueId)) throw ConditionFailedException("You have not been invited to join that team.")
+            team.invites.remove(player.uniqueId)
+            team.members.add(TeamMember(player.uniqueId, player.name, TeamMemberRole.MEMBER))
+            team.broadcast("${CC.LIGHT_PURPLE}${player.name}${CC.YELLOW} has joined the team.")
+        }
+    }
+
     @Subcommand("show|info|i|who")
     fun show(player: Player, @Default("self") team: Team) {
         player.sendMessage("${CC.GRAY}${CC.STRIKE_THROUGH}${"-".repeat(52)}")
@@ -146,7 +170,7 @@ object TeamCommand : GoodCommand()
 
     @Subcommand("deposit|d|addmoney")
     fun deposit(player: Player, input: String, @Default("self") team: Team) {
-        if ((team is PlayerTeam && team.isMember(player.uniqueId)) && !player.hasPermission("foxtrot.team.management")) throw ConditionFailedException("You are not the leader of ${team.name} so you cannot disband it.")
+        if ((team is PlayerTeam && team.isMember(player.uniqueId)) && !player.hasPermission("foxtrot.team.management")) throw ConditionFailedException("You are not a member of ${team.name} so you cannot deposit to it.")
         if (team is SystemTeam) throw ConditionFailedException("You cannot deposit money into a system team.")
 
         val amount = if (input.equals("all", true)) BalancePersistMap[player.uniqueId] ?: 0.0
