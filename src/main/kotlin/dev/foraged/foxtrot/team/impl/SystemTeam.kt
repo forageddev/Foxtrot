@@ -28,8 +28,10 @@ class SystemTeam(identifier: UUID, name: String) : Team(identifier, name)
 
     override fun getName(player: Player): String
     {
-        return color.toString() + name + if (flags.contains(SystemFlag.KING_OF_THE_HILL)) {
-            " ${CC.GOLD}KOTH"
-        } else ""
+        var final = "$color$name"
+        if (flags.contains(SystemFlag.KING_OF_THE_HILL)) final += " ${CC.GOLD}KOTH"
+        if (flags.contains(SystemFlag.ROAD)) final += " Road"
+
+        return final
     }
 }

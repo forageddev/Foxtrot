@@ -45,7 +45,7 @@ object SpawnListener : Listener
             event.player.sendMessage(ChatColor.YELLOW.toString() + "You cannot build in spawn!")
         } else if (ServerHandler.isSpawnBufferZone(event.block.location) || ServerHandler.isNetherBufferZone(event.block.location)) {
             if (!SystemFlag.SAFE_ZONE.appliesAt(event.block.location) && event.itemInHand != null && event.itemInHand.type == Material.WEB && ServerHandler.KIT_MAP) {
-                if (SystemFlag.DENY_COBWEBS.appliesAt(event.block.location)) {
+                if (!SystemFlag.ALLOW_COBWEBS.appliesAt(event.block.location)) {
                     event.player.sendMessage("${CC.RED}Cobwebs cannot be used in this region.")
                     return
                 }

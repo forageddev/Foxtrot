@@ -23,16 +23,17 @@ object RepairEnchant : Enchant("repair", "Repair", ChatColor.YELLOW, 4)
 
     fun shouldRepair(level: Int) : Boolean {
         return Chance.percent(when (level) {
-            1 -> 5
-            2 -> 10
-            3 -> 15
-            4 -> 20
+            1 -> 25
+            2 -> 45
+            3 -> 60
+            4 -> 80
             else -> -1
         })
     }
 
     @EventHandler
     fun onMove(event: PlayerMoveEvent) {
+        if (Chance.percent(50)) return
         if (!EventUtils.hasPlayerMoved(event)) return
 
         tick(event.player, 0)

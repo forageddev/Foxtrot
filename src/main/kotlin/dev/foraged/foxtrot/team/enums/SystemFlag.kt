@@ -18,7 +18,7 @@ enum class SystemFlag
     FURY,
     CONQUEST,
     CITADEL,
-    DENY_COBWEBS,
+    ALLOW_COBWEBS,
     CAVERN,
     GLOWSTONE,
     KING_OF_THE_HILL;
