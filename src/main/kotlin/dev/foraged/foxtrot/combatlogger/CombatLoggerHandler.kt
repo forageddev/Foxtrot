@@ -15,6 +15,7 @@ import net.evilblock.cubed.entity.event.PlayerDamageEntityEvent
 import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.EventUtils
+import net.evilblock.cubed.util.bukkit.Tasks
 import net.minecraft.server.v1_8_R3.DamageSource
 import org.bukkit.ChatColor
 import org.bukkit.GameMode
@@ -120,18 +121,35 @@ object CombatLoggerHandler : Listener
         val damager = event.player
         val logger = getByEntity(event.entity.id)
         if (logger is CombatLogger) {
-            val team = TeamHandler.findTeamByPlayer(logger.uniqueId) ?: return
+            val team = TeamHandler.findTeamByPlayer(logger.uniqueId)
 
-            if (team.isMember(damager.uniqueId)) {
-                damager.sendMessage("${CC.YELLOW}You cannot hurt your teammate ${CC.GREEN}${ScalaStoreUuidCache.username(
-                    logger.uniqueId
-                )}${CC.YELLOW}.")
-                event.isCancelled = true
+            if (team != null)
+            {
+                if (team.isMember(damager.uniqueId))
+                {
+                    damager.sendMessage(
+                        "${CC.YELLOW}You cannot hurt your teammate ${CC.GREEN}${
+                            ScalaStoreUuidCache.username(
+                                logger.uniqueId
+                            )
+                        }${CC.YELLOW}."
+                    )
+                    event.isCancelled = true
+                }
+                if (team.isAlly(damager.uniqueId))
+                {
+                    damager.sendMessage(
+                        "${CC.YELLOW}Be careful, that's your ally ${Team.ALLY_COLOR}${
+                            ScalaStoreUuidCache.username(
+                                logger.uniqueId
+                            )
+                        }${CC.YELLOW}."
+                    )
+                }
             }
-            if (team.isAlly(damager.uniqueId)) {
-                damager.sendMessage("${CC.YELLOW}Be careful, that's your ally ${Team.ALLY_COLOR}${ScalaStoreUuidCache.username(
-                    logger.uniqueId
-                )}${CC.YELLOW}.")
+            if (event.isCancelled) return
+            Tasks.sync {
+                logger.damage(event.damageData.damage)
             }
         }
     }

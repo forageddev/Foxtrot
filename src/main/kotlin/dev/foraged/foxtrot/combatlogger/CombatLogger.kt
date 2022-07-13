@@ -1,6 +1,7 @@
 package dev.foraged.foxtrot.combatlogger
 
 import dev.foraged.foxtrot.map.CombatLoggerTrackerPersistMap
+import dev.foraged.foxtrot.map.stats.DeathsPersistMap
 import dev.foraged.foxtrot.server.ServerHandler
 import dev.foraged.foxtrot.team.TeamHandler
 import gg.scala.cache.uuid.ScalaStoreUuidCache
@@ -43,9 +44,11 @@ class CombatLogger(val owner: Player) : NpcEntity(listOf(
 
     override fun damage(amount: Double)
     {
+        println(health)
+        println(amount)
         health = (health - amount).coerceAtMost(0.0)
 
-        if (health == 0.0) {
+        if (health <= 0.0) {
             contents.filterNotNull().forEach {
                 location.world.dropItemNaturally(location, it)
             }
@@ -53,7 +56,10 @@ class CombatLogger(val owner: Player) : NpcEntity(listOf(
                 location.world.dropItemNaturally(location, it)
             }
 
+            destroyForCurrentWatchers()
+            EntityHandler.forgetEntity(this)
             CombatLoggerTrackerPersistMap[uniqueId] = true
+            DeathsPersistMap[uniqueId]?.inc()
             location.world.strikeLightningEffect(location)
             if (!ServerHandler.KIT_MAP) {
                 // todo: do deathban logic
