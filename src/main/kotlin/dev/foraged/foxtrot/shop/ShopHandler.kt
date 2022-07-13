@@ -44,7 +44,7 @@ object ShopHandler : Listener
 
             val item = ItemBuilder.of(when(material) {
                 "Crowbar" -> XMaterial.IRON_AXE
-                else -> XMaterial.valueOf(material)
+                else -> XMaterial.valueOf(material.uppercase())
             })
 
             if (material == "Crowbar") {
