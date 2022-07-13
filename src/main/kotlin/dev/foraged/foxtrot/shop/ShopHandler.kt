@@ -4,6 +4,7 @@ import com.cryptomorin.xseries.XMaterial
 import dev.foraged.commons.annotations.Listeners
 import dev.foraged.foxtrot.listener.CrowbarListener
 import dev.foraged.foxtrot.map.BalancePersistMap
+import dev.foraged.foxtrot.team.enums.SystemFlag
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.ItemUtils
@@ -51,6 +52,7 @@ object ShopHandler : Listener
         val player = event.player
         if (event.action == Action.RIGHT_CLICK_BLOCK) {
             val block = event.clickedBlock
+            if (!SystemFlag.SAFE_ZONE.appliesAt(block.location)) return
             val shop = findShopByBlock(block) ?: return
 
             event.isCancelled = true
