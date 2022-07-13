@@ -10,8 +10,10 @@ import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.ItemUtils
 import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.ChatColor
+import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.Sign
+import org.bukkit.entity.EntityType
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
@@ -42,16 +44,23 @@ object ShopHandler : Listener
 
             val material = lines[1]
 
-            val item = ItemBuilder.of(when(material) {
+            var item = ItemBuilder.of(when(material) {
                 "Crowbar" -> XMaterial.IRON_AXE
                 else -> XMaterial.valueOf(material.uppercase())
             })
 
             if (material == "Crowbar") {
+                item.name(CrowbarListener.CROWBAR_NAME)
                 item.setLore(CrowbarListener.getCrowbarDescription(6, 1))
             }
+            if (material.endsWith("Spawner")) {
+                item = ItemBuilder.of(XMaterial.SPAWNER).name(material)
+            }
+            if (material.endsWith("Egg")) {
+                item = ItemBuilder.of(Material.MONSTER_EGG).data(EntityType.valueOf(material.replace(" Egg", "").replace(" ", "_").uppercase()).typeId)
+            }
 
-            return Shop(sign, type, item.build(), lines[2].toInt(), lines[3].replace("$", "").toDouble())
+            return Shop(sign, type, material, item.build(), lines[2].toInt(), lines[3].replace("$", "").toDouble())
         }
         return null
     }
@@ -89,7 +98,7 @@ object ShopHandler : Listener
                     player.inventory.addItem(ItemBuilder.copyOf(shop.item).amount(shop.amount).build())
                     player.sendSignChange(block.location, arrayOf("${CC.GREEN}Purchased", shop.sign.lines[1], shop.sign.lines[2], shop.sign.lines[3]))
                     player.updateInventory()
-                    player.sendMessage("${CC.GREEN}You have purchased ${CC.BOLD}x${shop.amount} ${CC.GREEN}${ItemUtils.getChatName(shop.item)} from the shop for ${CC.BOLD}$${shop.price}${CC.GREEN}.")
+                    player.sendMessage("${CC.GREEN}You have purchased ${CC.BOLD}x${shop.amount} ${CC.GREEN}${shop.itemName} from the shop for ${CC.BOLD}$${shop.price}${CC.GREEN}.")
                 }
                 ShopType.SELL -> {
                     if (!player.inventory.contains(shop.item.type)) {
@@ -112,7 +121,7 @@ object ShopHandler : Listener
 
                     val amount = floor(pricePer * sellCount)
                     BalancePersistMap.plus(player.uniqueId, amount)
-                    player.sendMessage("${CC.GREEN}You have sold ${CC.BOLD}x${sellCount} ${CC.GREEN}${ItemUtils.getChatName(shop.item)} to the shop for ${CC.BOLD}$${amount}${CC.GREEN}.")
+                    player.sendMessage("${CC.GREEN}You have sold ${CC.BOLD}x${sellCount} ${CC.GREEN}${shop.itemName} to the shop for ${CC.BOLD}$${amount}${CC.GREEN}.")
                     player.inventory.removeItem(ItemBuilder.copyOf(shop.item).amount(sellCount).build())
                     player.sendSignChange(block.location, arrayOf("${CC.GREEN}Sold", shop.sign.lines[1], shop.sign.lines[2], shop.sign.lines[3]))
                 }
