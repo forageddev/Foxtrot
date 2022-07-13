@@ -23,19 +23,20 @@ import kotlin.time.Duration.Companion.seconds
 object PvPCommand : GoodCommand()
 {
     @Subcommand("enable")
-    fun enable(player: Player, @Default("self") target: Player) {
-        if (player != target && !player.hasPermission("foxtrot.pvp.management")) throw ConditionFailedException("You cannot disable other players pvp timers.")
+    fun enable(player: Player, @Default("self") target: UUID) {
+        if (player.uniqueId != target && !player.hasPermission("foxtrot.pvp.management")) throw ConditionFailedException("You cannot disable other players pvp timers.")
+        if (PvPTimerPersistableMap.isOnCooldown(target)) throw ConditionFailedException("You do not have an active pvp timer.")
 
-        PvPTimerPersistableMap.resetCooldown(target.uniqueId)
-        if (player == target) player.sendMessage("${CC.SEC}You have disabled your pvp timer.")
-        else player.sendMessage("${CC.SEC}You have diabled the pvp timer of ${target.displayName}${CC.SEC}.")
+        PvPTimerPersistableMap.resetCooldown(target)
+        if (player.uniqueId == target) player.sendMessage("${CC.SEC}You have disabled your pvp timer.")
+        else player.sendMessage("${CC.SEC}You have disabled the pvp timer of ${ScalaStoreUuidCache.username(target)}${CC.SEC}.")
     }
 
     @Subcommand("grant")
     @CommandPermission("foxtrot.pvp.management")
-    fun grant(player: Player, target: Player, duration: Duration) {
-        PvPTimerPersistableMap.startCooldown(target.uniqueId, duration.get().seconds.inWholeSeconds)
-        player.sendMessage("${CC.SEC}You have granted ${target.displayName}${CC.PRI} ${TimeUtil.formatIntoDetailedString(duration.get().seconds.inWholeSeconds.toInt())}${CC.SEC} of pvp timer.")
+    fun grant(player: Player, target: UUID, duration: Duration) {
+        PvPTimerPersistableMap.startCooldown(target, duration.get().seconds.inWholeSeconds)
+        player.sendMessage("${CC.SEC}You have granted ${ScalaStoreUuidCache.username(target)}${CC.PRI} ${TimeUtil.formatIntoDetailedString(duration.get().seconds.inWholeSeconds.toInt())}${CC.SEC} of pvp timer.")
     }
 
     @Subcommand("revive")
