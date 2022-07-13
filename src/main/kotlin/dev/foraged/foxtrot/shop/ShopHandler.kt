@@ -89,7 +89,7 @@ object ShopHandler : Listener
                     player.inventory.addItem(ItemBuilder.copyOf(shop.item).amount(shop.amount).build())
                     player.sendSignChange(block.location, arrayOf("${CC.GREEN}Purchased", shop.sign.lines[1], shop.sign.lines[2], shop.sign.lines[3]))
                     player.updateInventory()
-                    player.sendMessage("${CC.GREEN}You have purchased ${CC.BOLD}x${shop.amount} ${CC.GREEN}${ItemUtils.getChatName(shop.item)} from the shop.")
+                    player.sendMessage("${CC.GREEN}You have purchased ${CC.BOLD}x${shop.amount} ${CC.GREEN}${ItemUtils.getChatName(shop.item)} from the shop for ${CC.BOLD}$${shop.price}${CC.GREEN}.")
                 }
                 ShopType.SELL -> {
                     if (!player.inventory.contains(shop.item.type)) {
@@ -110,8 +110,9 @@ object ShopHandler : Listener
                         sellCount += item.amount
                     }
 
-                    BalancePersistMap.plus(player.uniqueId, floor(pricePer * sellCount))
-                    player.sendMessage("${CC.GREEN}You have sold ${CC.BOLD}x${sellCount} ${CC.GREEN}${ItemUtils.getChatName(shop.item)} to the shop.")
+                    val amount = floor(pricePer * sellCount)
+                    BalancePersistMap.plus(player.uniqueId, amount)
+                    player.sendMessage("${CC.GREEN}You have sold ${CC.BOLD}x${sellCount} ${CC.GREEN}${ItemUtils.getChatName(shop.item)} to the shop for ${CC.BOLD}$${amount}${CC.GREEN}.")
                     player.inventory.removeItem(ItemBuilder.copyOf(shop.item).amount(sellCount).build())
                     player.sendSignChange(block.location, arrayOf("${CC.GREEN}Sold", shop.sign.lines[1], shop.sign.lines[2], shop.sign.lines[3]))
                 }
