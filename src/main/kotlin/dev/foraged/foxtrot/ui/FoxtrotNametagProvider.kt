@@ -19,7 +19,7 @@ object FoxtrotNametagProvider : NametagProvider("Foxtrot Provider", 5)
         {
             if (viewerTeam.isMember(toRefresh.uniqueId))
             {
-                nametagInfo = createNametag(ChatColor.DARK_GREEN.toString(), "")
+                nametagInfo = createNametag(CC.GREEN, "")
             } else if (viewerTeam.isAlly(toRefresh.uniqueId))
             {
                 nametagInfo = createNametag(Team.ALLY_COLOR, "")
