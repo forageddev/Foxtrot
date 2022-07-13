@@ -25,8 +25,10 @@ import net.evilblock.cubed.menu.menus.SelectColorMenu
 import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ColorUtil
+import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.text.TextUtil
+import net.md_5.bungee.api.chat.ClickEvent
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
@@ -53,6 +55,7 @@ object TeamCommand : GoodCommand()
     }
 
     @Subcommand("create")
+    @Description("Create a new team")
     fun create(player: Player, @Single @Conditions("validate:min=3,max=16,regex=[^a-zA-Z0-9]") name: String) {
         if (TeamHandler.findTeamByName(name) != null) throw ConditionFailedException("Another team with the name $name already exists. Please choose a new name for your team.")
         if (TeamHandler.findTeamByPlayer(player.uniqueId) != null) throw ConditionFailedException("You are already in another team. Please leave your existing team before attempting to perform this command again.")
@@ -66,6 +69,7 @@ object TeamCommand : GoodCommand()
 
     @Subcommand("createsystem")
     @CommandPermission("foxtrot.team.management")
+    @Description("Create a new system team")
     fun createSystem(player: Player, name: String) {
         TeamHandler.registerTeam(SystemTeam(UUID.randomUUID(), name))
         player.sendMessage("${CC.SEC}Created system team with name ${CC.PRI}${name}${CC.SEC}.")
@@ -73,8 +77,9 @@ object TeamCommand : GoodCommand()
 
     @Subcommand("color")
     @CommandPermission("foxtrot.team.management")
+    @Description("Change the color of a system team")
     fun color(player: Player, team: Team) {
-        if (team !is SystemTeam) throw ConditionFailedException("Team must be instance of SystemTeam to add flags.")
+        if (team !is SystemTeam) throw ConditionFailedException("Team must be instance of SystemTeam to modify colors.")
 
         SelectColorMenu {
             team.color = ColorUtil.toChatColor(it)
@@ -84,6 +89,7 @@ object TeamCommand : GoodCommand()
 
     @Subcommand("flag")
     @CommandPermission("foxtrot.team.management")
+    @Description("Toggle a system flag on a team")
     fun flag(player: Player, team: Team, flag: SystemFlag) {
         if (team !is SystemTeam) throw ConditionFailedException("Team must be instance of SystemTeam to add flags.")
         if (team.hasFlag(flag)) team.flags.remove(flag)
@@ -93,6 +99,7 @@ object TeamCommand : GoodCommand()
     }
 
     @Subcommand("rename")
+    @Description("Rename a team")
     fun rename(player: Player, @Conditions("validate:min=3,max=16,regex=[^a-zA-Z0-9]") name: String, @Default("self") team: Team) {
         if ((team is PlayerTeam && team.leader.uniqueId != player.uniqueId) && !player.hasPermission("foxtrot.team.management")) throw ConditionFailedException("You are not the leader of ${team.name} so you cannot rename it.")
 
@@ -102,22 +109,30 @@ object TeamCommand : GoodCommand()
 
     @Subcommand("debug-raw")
     @CommandPermission("foxtrot.team.development")
+    @Description("Print development information to chat")
     fun debug(player: Player, team: Team) {
         player.sendMessage(Serializers.gson.toJson(team))
     }
 
     @Subcommand("invite")
+    @Description("Invite a player to your team")
     fun invite(player: Player, target: UUID, @Default("self") team: Team) {
         if (((team is PlayerTeam) && (team.isOwner(player.uniqueId) || team.isCaptain(player.uniqueId) || team.isCoLeader(player.uniqueId))) && !player.hasPermission("foxtrot.team.management")) throw ConditionFailedException("You are not an officer of ${team.name} so you cannot invite members to it.")
         if (team is PlayerTeam) {
             if (team.invites.contains(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} has already been invited to ${team.name}.")
 
             team.invites.add(target)
-            team.broadcast("${CC.LIGHT_PURPLE}${player.name}${CC.YELLOW} has invited ${CC.LIGHT_PURPLE}${ScalaStoreUuidCache.username(target)}${CC.YELLOW} to the team!")
+            team.broadcast("${CC.PRI}${player.name}${CC.SEC} has invited ${CC.PRI}${ScalaStoreUuidCache.username(target)}${CC.SEC} to the team!")
+
+            val targetPlayer = Bukkit.getPlayer(target) ?: return
+
+            targetPlayer.sendMessage("${CC.SEC}You have been invited to join the team ${CC.PRI}${team.name}")
+            FancyMessage().withMessage("${CC.PRI}Click here to join.").andCommandOf(ClickEvent.Action.RUN_COMMAND, "team join ${team.name}").sendToPlayer(targetPlayer)
         } else throw ConditionFailedException("Retard.")
     }
 
     @Subcommand("join")
+    @Description("Join a team you were invited to")
     fun join(player: Player, team: Team) {
         if (team is SystemTeam) throw ConditionFailedException("You cannot join teams that are managed by the server.")
         if (team is PlayerTeam)
@@ -130,6 +145,7 @@ object TeamCommand : GoodCommand()
     }
 
     @Subcommand("show|info|i|who")
+    @Description("Show information on a team")
     fun show(player: Player, @Default("self") team: Team) {
         player.sendMessage("${CC.GRAY}${CC.STRIKE_THROUGH}${"-".repeat(52)}")
         player.sendMessage(team.getName(player))
@@ -161,6 +177,7 @@ object TeamCommand : GoodCommand()
     }
 
     @Subcommand("disband")
+    @Description("Disband your current team")
     fun disband(player: Player, @Default("self") team: Team) {
         if ((team is PlayerTeam && team.leader.uniqueId != player.uniqueId) && !player.hasPermission("foxtrot.team.management")) throw ConditionFailedException("You are not the leader of ${team.name} so you cannot disband it.")
 
@@ -169,6 +186,7 @@ object TeamCommand : GoodCommand()
     }
 
     @Subcommand("deposit|d|addmoney")
+    @Description("Deposit money into your teams balance")
     fun deposit(player: Player, input: String, @Default("self") team: Team) {
         if ((team is PlayerTeam && team.isMember(player.uniqueId)) && !player.hasPermission("foxtrot.team.management")) throw ConditionFailedException("You are not a member of ${team.name} so you cannot deposit to it.")
         if (team is SystemTeam) throw ConditionFailedException("You cannot deposit money into a system team.")
@@ -185,11 +203,13 @@ object TeamCommand : GoodCommand()
     }
 
     @Subcommand("map")
+    @Description("Display the team visual map")
     fun map(player: Player) {
         VisualClaim(player, VisualClaimType.MAP, false).draw(false)
     }
 
     @Subcommand("claim")
+    @Description("Obtain a claiming wand to create land")
     fun claim(player: Player, @Default("self") team: Team) {
         //TOO: ADD kitmap check
         if (team !is SystemTeam && player.gameMode == GameMode.CREATIVE && ServerHandler.isWarzone(player.location)) throw ConditionFailedException("You are currently in the Warzone and can't claim land here. The Warzone ends at \" + ServerHandler.WARZONE_RADIUS + \".\"")

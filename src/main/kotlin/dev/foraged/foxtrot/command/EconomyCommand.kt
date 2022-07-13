@@ -39,6 +39,8 @@ object EconomyCommand : GoodCommand()
     @CommandPermission("foxtrot.balance.management")
     @Subcommand("set")
     fun set(player: Player, target: UUID, amount: Double) {
+        if (amount > 250000) throw ConditionFailedException("What the fuck are you trying to do?")
+        if (amount > 100000) throw ConditionFailedException("Yeah like fuck kid. gtfo")
         BalancePersistMap[target] = amount
         player.sendMessage("${CC.GOLD}New balance of ${CC.WHITE}${ScalaStoreUuidCache.username(target)}${CC.GRAY}: ${CC.WHITE}${amount}")
     }

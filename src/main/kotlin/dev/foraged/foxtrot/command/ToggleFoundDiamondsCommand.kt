@@ -2,6 +2,7 @@ package dev.foraged.foxtrot.command
 
 import dev.foraged.commons.acf.annotation.CommandAlias
 import dev.foraged.commons.acf.annotation.Default
+import dev.foraged.commons.acf.annotation.Description
 import dev.foraged.commons.acf.annotation.Subcommand
 import dev.foraged.commons.annotations.commands.AutoRegister
 import dev.foraged.commons.command.GoodCommand
@@ -16,6 +17,7 @@ object ToggleFoundDiamondsCommand : GoodCommand()
 {
     @Default
     @Subcommand("toggle")
+    @Description("Toggle your found diamond alerts")
     fun execute(sender: Player)
     {
         sender.sendMessage("${CC.SEC}Your diamond alerts are now ${CC.PRI}${

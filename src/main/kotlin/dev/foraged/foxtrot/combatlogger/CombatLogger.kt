@@ -44,9 +44,7 @@ class CombatLogger(val owner: Player) : NpcEntity(listOf(
 
     override fun damage(amount: Double)
     {
-        println(health)
-        println(amount)
-        health = (health - amount).coerceAtMost(0.0)
+        health -= if (amount == 0.0) 1.5 else amount
 
         if (health <= 0.0) {
             contents.filterNotNull().forEach {

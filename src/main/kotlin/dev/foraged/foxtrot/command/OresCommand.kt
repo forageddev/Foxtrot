@@ -4,6 +4,7 @@ import dev.foraged.commons.acf.ConditionFailedException
 import dev.foraged.commons.acf.annotation.CommandAlias
 import dev.foraged.commons.acf.annotation.CommandPermission
 import dev.foraged.commons.acf.annotation.Default
+import dev.foraged.commons.acf.annotation.Description
 import dev.foraged.commons.acf.annotation.Subcommand
 import dev.foraged.commons.annotations.commands.AutoRegister
 import dev.foraged.commons.command.GoodCommand
@@ -18,7 +19,8 @@ import java.util.*
 object OresCommand : GoodCommand()
 {
     @Default
-    fun ores(sender: Player, player: UUID)
+    @Description("View how many ores a player has mined")
+    fun ores(sender: Player, @Default("self") player: UUID)
     {
         sender.sendMessage("${CC.SEC}Ores mined by ${CC.PRI}${ScalaStoreUuidCache.username(player)}")
         FoxtrotExtendedPlugin.oreMaps.forEach {
@@ -28,6 +30,7 @@ object OresCommand : GoodCommand()
 
     @CommandPermission("foxtrot.ores.management")
     @Subcommand("reset")
+    @Description("Reset a players mined ores")
     fun reset(sender: Player, player: UUID)
     {
         FoxtrotExtendedPlugin.oreMaps.forEach { it.reset(player) }
@@ -36,6 +39,7 @@ object OresCommand : GoodCommand()
 
     @CommandPermission("foxtrot.ores.management")
     @Subcommand("set")
+    @Description("Set a players mined ores")
     fun set(sender: Player, player: UUID, ore: String, amount: Int)
     {
         val map = FoxtrotExtendedPlugin.oreMaps.firstOrNull { it.mongoName.split(".")[1].equals(ore, true) } ?: throw ConditionFailedException("Persistable ore type not defined with name $ore")
