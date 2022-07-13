@@ -9,7 +9,7 @@ import org.bukkit.event.entity.PlayerDeathEvent
 
 @RegisterMap
 @Listeners
-object MaxKillstreakPersistMap : IntegerPersistMap("HighestKillstreak", "HighestKillstreak", true), Listener
+object MaxKillstreakPersistMap : IntegerPersistMap("HighestKillstreak", "Highest_Killstreak", true), Listener
 {
     @EventHandler
     fun onDeath(event: PlayerDeathEvent) {

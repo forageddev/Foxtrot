@@ -9,7 +9,7 @@ import org.bukkit.event.block.BlockPlaceEvent
 
 @RegisterMap
 @Listeners
-object BlocksPlacedPersistMap : IntegerPersistMap("BlocksPlaced", "BlocksPlaced", true), Listener
+object BlocksPlacedPersistMap : IntegerPersistMap("BlocksPlaced", "Blocks_Placed", true), Listener
 {
     @EventHandler
     fun onDeath(event: BlockPlaceEvent) {

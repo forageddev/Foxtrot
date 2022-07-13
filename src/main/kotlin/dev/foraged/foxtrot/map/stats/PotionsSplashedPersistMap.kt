@@ -10,7 +10,7 @@ import org.bukkit.event.entity.PotionSplashEvent
 
 @RegisterMap
 @Listeners
-object PotionsSplashedPersistMap : IntegerPersistMap("PotionsSplashed", "PotionsSplashed", true), Listener
+object PotionsSplashedPersistMap : IntegerPersistMap("PotionsSplashed", "Potions_Splashed", true), Listener
 {
     @EventHandler
     fun onSplash(event: PotionSplashEvent) {

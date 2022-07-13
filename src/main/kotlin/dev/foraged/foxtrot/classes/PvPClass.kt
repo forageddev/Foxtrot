@@ -1,6 +1,7 @@
 package dev.foraged.foxtrot.classes
 
 import com.google.common.collect.HashBasedTable
+import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -35,7 +36,7 @@ abstract class PvPClass(val name: String, val warmup: Int, val consumables: List
     open fun remove(player: Player) {}
     open fun canApply(player: Player) : Boolean {return true}
     open fun itemConsumed(player: Player, type: Material) : Boolean {return true}
-    open fun getScoreboardLines(player: Player) : List<String> {return emptyList()}
+    open fun getScoreboardLines(player: Player) : List<String> {return listOf("${CC.BLUE}Class${CC.GRAY}: ${CC.RED}$name") }
 
     abstract fun qualifies(armor: PlayerInventory) : Boolean
     fun wearingAllArmor(armor: PlayerInventory) : Boolean {

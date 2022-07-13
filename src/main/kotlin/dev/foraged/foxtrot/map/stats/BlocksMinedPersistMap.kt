@@ -9,7 +9,7 @@ import org.bukkit.event.block.BlockBreakEvent
 
 @RegisterMap
 @Listeners
-object BlocksMinedPersistMap : IntegerPersistMap("BlocksMined", "BlocksMined", true), Listener
+object BlocksMinedPersistMap : IntegerPersistMap("BlocksMined", "Blocks_Mined", true), Listener
 {
     @EventHandler
     fun onBreak(event: BlockBreakEvent) {

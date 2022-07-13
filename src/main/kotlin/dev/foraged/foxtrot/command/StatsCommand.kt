@@ -22,7 +22,7 @@ object StatsCommand : GoodCommand()
     {
         sender.sendMessage("${CC.SEC}Stats for ${CC.PRI}${ScalaStoreUuidCache.username(player)}")
         FoxtrotExtendedPlugin.statMaps.forEach {
-            sender.sendMessage("${it.mongoName}: ${CC.WHITE}${it[player] ?: 0}")
+            sender.sendMessage("${CC.SEC}${it.mongoName.replace("_", " ")}: ${CC.PRI}${it[player] ?: 0}")
         }
     }
 

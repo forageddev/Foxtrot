@@ -21,6 +21,11 @@ import kotlin.math.roundToInt
 
 object FoxtrotScoreboardProvider : ScoreboardAdapter()
 {
+    override fun getInterval(): Long
+    {
+        return 2L
+    }
+
     override fun getTitle(player: Player): String
     {
         return "${CC.B_PRI}${Bukkit.getServerName()} ${CC.WHITE}[Map One]"
@@ -32,10 +37,10 @@ object FoxtrotScoreboardProvider : ScoreboardAdapter()
         // if kitmap add stats
         if (ServerHandler.KIT_MAP) {
             board.add("${CC.B_PRI}Statistics")
-            board.add(" ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.SEC}Kills${CC.GRAY}: ${CC.RED}${KillsPersistMap[player.uniqueId] ?: 0}")
-            board.add(" ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.SEC}Deaths${CC.GRAY}: ${CC.RED}${DeathsPersistMap[player.uniqueId] ?: 0}")
+            board.add(" ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.SEC}Kills${CC.GRAY}: ${CC.WHITE}${KillsPersistMap[player.uniqueId] ?: 0}")
+            board.add(" ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.SEC}Deaths${CC.GRAY}: ${CC.WHITE}${DeathsPersistMap[player.uniqueId] ?: 0}")
             if ((KillstreakPersistMap[player.uniqueId] ?: 0) > 0) {
-                board.add(" ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.SEC}Streak${CC.GRAY}: ${CC.RED}${KillstreakPersistMap[player.uniqueId] ?: 0}")
+                board.add(" ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.SEC}Streak${CC.GRAY}: ${CC.WHITE}${KillstreakPersistMap[player.uniqueId] ?: 0}")
             }
         }
         if (ServerHandler.SOTW_ACTIVE) {
@@ -53,11 +58,11 @@ object FoxtrotScoreboardProvider : ScoreboardAdapter()
         }
 
         if (EnderpearlMap.isOnCooldown(player.uniqueId)) {
-            board.add("${CC.B_YELLOW}Enderpearl${CC.GRAY}: ${CC.RED}${formatDuration(EnderpearlMap.getCooldown(player.uniqueId))}")
+            board.add("${CC.BL_PURPLE}Enderpearl${CC.GRAY}: ${CC.RED}${formatDuration(EnderpearlMap.getCooldown(player.uniqueId))}")
         }
 
         if (AppleMap.isOnCooldown(player.uniqueId)) {
-            board.add("${CC.B_GREEN}Apple${CC.GRAY}: ${CC.RED}${formatDuration(AppleMap.getCooldown(player.uniqueId))}")
+            board.add("${CC.B_YELLOW}Apple${CC.GRAY}: ${CC.RED}${formatDuration(AppleMap.getCooldown(player.uniqueId))}")
         }
 
         if (OpplePersistableMap.isOnCooldown(player.uniqueId)) {

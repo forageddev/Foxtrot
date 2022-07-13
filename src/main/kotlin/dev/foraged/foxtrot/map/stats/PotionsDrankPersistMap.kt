@@ -10,7 +10,7 @@ import org.bukkit.event.player.PlayerItemConsumeEvent
 
 @RegisterMap
 @Listeners
-object PotionsDrankPersistMap : IntegerPersistMap("PotionsDrank", "PotionsDrank", true), Listener
+object PotionsDrankPersistMap : IntegerPersistMap("PotionsDrank", "Potions_Drank", true), Listener
 {
     @EventHandler
     fun onSplash(event: PlayerItemConsumeEvent) {

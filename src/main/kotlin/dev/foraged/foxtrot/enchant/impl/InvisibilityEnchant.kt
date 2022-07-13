@@ -10,7 +10,7 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 
 @Listeners
-object InvisibilityEnchant : Enchant("invisiblity", "Invisiblity", ChatColor.AQUA, 3)
+object InvisibilityEnchant : Enchant("invisibility", "Invisibility", ChatColor.AQUA, 3)
 {
     override fun canEnchant(item: ItemStack): Boolean {
         return ItemUtils.isArmorEquipment(item.type)
