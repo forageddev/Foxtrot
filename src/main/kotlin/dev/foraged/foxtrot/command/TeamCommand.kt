@@ -40,6 +40,7 @@ object TeamCommand : GoodCommand()
 {
     @HelpCommand
     @Default
+    @Description("View this team help message")
     fun help(help: CommandHelp) {
         help.showHelp()
     }
@@ -109,7 +110,7 @@ object TeamCommand : GoodCommand()
 
     @Subcommand("debug-raw")
     @CommandPermission("foxtrot.team.development")
-    @Description("Print development information to chat")
+    @Description("Print debug info to chat")
     fun debug(player: Player, team: Team) {
         player.sendMessage(Serializers.gson.toJson(team))
     }
@@ -119,13 +120,13 @@ object TeamCommand : GoodCommand()
     fun invite(player: Player, target: UUID, @Default("self") team: Team) {
         if (((team is PlayerTeam) && (team.isOwner(player.uniqueId) || team.isCaptain(player.uniqueId) || team.isCoLeader(player.uniqueId))) && !player.hasPermission("foxtrot.team.management")) throw ConditionFailedException("You are not an officer of ${team.name} so you cannot invite members to it.")
         if (team is PlayerTeam) {
+            if (team.isMember(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is already a member of your ${team.name}.")
             if (team.invites.contains(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} has already been invited to ${team.name}.")
 
             team.invites.add(target)
             team.broadcast("${CC.PRI}${player.name}${CC.SEC} has invited ${CC.PRI}${ScalaStoreUuidCache.username(target)}${CC.SEC} to the team!")
 
             val targetPlayer = Bukkit.getPlayer(target) ?: return
-
             targetPlayer.sendMessage("${CC.SEC}You have been invited to join the team ${CC.PRI}${team.name}")
             FancyMessage().withMessage("${CC.PRI}Click here to join.").andCommandOf(ClickEvent.Action.RUN_COMMAND, "team join ${team.name}").sendToPlayer(targetPlayer)
         } else throw ConditionFailedException("Retard.")
@@ -186,7 +187,7 @@ object TeamCommand : GoodCommand()
     }
 
     @Subcommand("deposit|d|addmoney")
-    @Description("Deposit money into your teams balance")
+    @Description("Deposit money into your team")
     fun deposit(player: Player, input: String, @Default("self") team: Team) {
         if ((team is PlayerTeam && team.isMember(player.uniqueId)) && !player.hasPermission("foxtrot.team.management")) throw ConditionFailedException("You are not a member of ${team.name} so you cannot deposit to it.")
         if (team is SystemTeam) throw ConditionFailedException("You cannot deposit money into a system team.")

@@ -16,6 +16,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
+import java.util.IllegalFormatCodePointException
 import kotlin.math.floor
 
 @Listeners
@@ -26,10 +27,18 @@ object ShopHandler : Listener
             val sign = block.state as Sign
             val lines = sign.lines
 
-            val type = ShopType.valueOf(ChatColor.stripColor(lines[0]
-                .replace("-", "")
-                .replace(" ", "")
-            ))
+            val type = try
+            {
+                ShopType.valueOf(
+                    ChatColor.stripColor(
+                        lines[0]
+                            .replace("-", "")
+                            .replace(" ", "")
+                    ).uppercase()
+                )
+            } catch (e: IllegalArgumentException) {
+                null
+            }  ?: return null
 
             val material = lines[1]
 
