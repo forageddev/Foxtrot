@@ -7,6 +7,7 @@ import dev.foraged.foxtrot.map.cooldown.PvPTimerPersistableMap
 import dev.foraged.foxtrot.team.claim.LandBoard
 import dev.foraged.foxtrot.team.enums.SystemFlag
 import dev.foraged.foxtrot.team.impl.PlayerTeam
+import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.ChatColor
 import org.bukkit.entity.EnderPearl
@@ -59,8 +60,9 @@ object EnderpearlMap : CooldownMap(16), Listener
             val value = millisLeft / 1000.0
             val sec = if (value > 0.1) (10.0 * value).roundToInt() / 10.0 else 0.1 // don't tell user 0.0
             event.isCancelled = true
-            thrower.itemInHand = ItemBuilder.copyOf(thrower.itemInHand).amount(thrower.itemInHand.amount + 1).build()
-            thrower.sendMessage(ChatColor.RED.toString() + "You cannot use this for another " + ChatColor.BOLD + sec + ChatColor.RED + " seconds!")
+
+            thrower.itemInHand.amount++
+            thrower.sendMessage("${CC.RED}You cannot use this for another ${CC.BOLD}$sec${CC.RED} seconds!")
             thrower.updateInventory()
         }
     }
