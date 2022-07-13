@@ -35,7 +35,7 @@ object TeamListener : Listener
     {
         val team = TeamHandler.findTeamByPlayer(event.player.uniqueId)
         if (team != null) {
-            for (player in Bukkit.getServer().getOnlinePlayers()) {
+            for (player in Bukkit.getServer().onlinePlayers) {
                 if (team.isMember(player.uniqueId)) {
                     player.sendMessage("${CC.GREEN}Member Online: " + ChatColor.WHITE + event.player.name)
                 } else if (team.isAlly(player.uniqueId)) {
@@ -52,7 +52,7 @@ object TeamListener : Listener
     {
         val team = TeamHandler.findTeamByPlayer(event.player.uniqueId)
         if (team != null) {
-            for (player in Bukkit.getServer().getOnlinePlayers()) {
+            for (player in Bukkit.getServer().onlinePlayers) {
                 if (player == event.player) continue
 
                 if (team.isMember(player.uniqueId)) {

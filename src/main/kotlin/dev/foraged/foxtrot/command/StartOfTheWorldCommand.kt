@@ -78,7 +78,7 @@ object StartOfTheWorldCommand : GoodCommand()
 
     @Subcommand("stop|end")
     @CommandPermission("foxtrot.sotw")
-    fun stop(player: Player, duration: Duration) {
+    fun stop(player: Player) {
         ServerHandler.SOTW_EXPIRES = -1
         ServerHandler.SOTW_ENABLED = mutableSetOf()
 
