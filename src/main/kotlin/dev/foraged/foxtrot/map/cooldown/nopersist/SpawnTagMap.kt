@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.PlayerDeathEvent
 import java.util.*
 
 @Listeners
@@ -19,6 +20,11 @@ object SpawnTagMap : CooldownMap(30), Listener
         if (!isOnCooldown(uuid)) Bukkit.getPlayer(uuid).sendMessage("${CC.SEC}You have been spawn-tagged for ${CC.RED}${seconds}${CC.YELLOW} seconds!")
 
         super.startCooldown(uuid, seconds)
+    }
+
+    @EventHandler
+    fun onDeath(event: PlayerDeathEvent) {
+        resetCooldown(event.entity.uniqueId)
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

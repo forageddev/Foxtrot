@@ -1,11 +1,13 @@
 package dev.foraged.foxtrot.ability
 
 import dev.foraged.commons.persist.CooldownMap
+import dev.foraged.foxtrot.map.cooldown.nopersist.AbilityCooldownMap
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.*
 import org.bukkit.event.Listener
 import org.bukkit.inventory.ItemStack
+import java.util.*
 
 abstract class Ability(
     val id: String,
@@ -31,5 +33,11 @@ abstract class Ability(
                 && itemStack.itemMeta.hasDisplayName()
                 && itemStack.itemMeta.displayName == displayName && itemStack.itemMeta.hasLore()
                 && itemStack.itemMeta.lore.equals(lore)
+    }
+
+    override fun startCooldown(uuid: UUID, seconds: Int)
+    {
+        AbilityCooldownMap.startCooldown(uuid)
+        super.startCooldown(uuid, seconds)
     }
 }

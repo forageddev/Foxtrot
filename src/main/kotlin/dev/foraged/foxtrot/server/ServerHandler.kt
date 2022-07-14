@@ -23,7 +23,7 @@ object ServerHandler
     const val WARZONE_RADIUS = 1000
     const val WARZONE_BORDER = 3000
 
-    val KIT_MAP = false
+    val KIT_MAP = true
 
     var SOTW_EXPIRES: Long = -1
     var SOTW_ENABLED = mutableSetOf<UUID>()

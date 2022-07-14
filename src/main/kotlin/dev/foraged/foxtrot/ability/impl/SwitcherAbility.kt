@@ -32,12 +32,14 @@ object SwitcherAbility : Ability("switcher", "Switcher", ChatColor.AQUA, Materia
         if (isAbilityItem(player.itemInHand)) {
             event.isCancelled = true
             if (AbilityCooldownMap.isOnCooldown(player.uniqueId)) {
-                player.sendMessage("${CC.RED}You cannot use ability items for another ${TimeUtil.formatIntoDetailedString(((getCooldown(player.uniqueId) - System.currentTimeMillis()) / 1000).toInt())}.")
+                player.sendMessage("${CC.RED}You cannot use ability items for another ${TimeUtil.formatIntoDetailedString(((AbilityCooldownMap.getCooldown(player.uniqueId) - System.currentTimeMillis()) / 1000).toInt())}.")
+                player.updateInventory()
                 return
             }
 
             if (isOnCooldown(player.uniqueId)) {
                 player.sendMessage("${CC.RED}You cannot use a $id for another ${TimeUtil.formatIntoDetailedString(((getCooldown(player.uniqueId) - System.currentTimeMillis()) / 1000).toInt())}.")
+                player.updateInventory()
                 return
             }
 
@@ -46,6 +48,7 @@ object SwitcherAbility : Ability("switcher", "Switcher", ChatColor.AQUA, Materia
 
             val snowball = player.launchProjectile(Snowball::class.java)
             snowball.setMetadata("Switcher", FixedMetadataValue(FoxtrotExtendedPlugin.instance, true))
+            startCooldown(player.uniqueId)
         }
     }
 
