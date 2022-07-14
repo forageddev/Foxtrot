@@ -72,10 +72,13 @@ object TeamStuckMap : CooldownMap(120), Listener {
     @EventHandler
     fun onMove(event: PlayerMoveEvent) {
         if (EventUtils.hasPlayerMoved(event)) {
-            val origin = locations[event.player.uniqueId] ?: return
-            if (event.to.distance(origin) > MAX_DISTANCE) {
-                resetCooldown(event.player.uniqueId)
-                event.player.sendMessage("${Team.CHAT_PREFIX} ${CC.RED}Your stuck teleport has been cancelled as you moved more than ${MAX_DISTANCE} blocks.")
+            if (isOnCooldown(event.player.uniqueId))
+            {
+                val origin = locations[event.player.uniqueId] ?: return
+                if (event.to.distance(origin) > MAX_DISTANCE) {
+                    resetCooldown(event.player.uniqueId)
+                    event.player.sendMessage("${Team.CHAT_PREFIX} ${CC.RED}Your stuck teleport has been cancelled as you moved more than ${MAX_DISTANCE} blocks.")
+            }
             }
         }
     }

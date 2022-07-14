@@ -59,9 +59,11 @@ object TeamHomeMap : CooldownMap(10), Listener {
     @EventHandler
     fun onMove(event: PlayerMoveEvent) {
         if (EventUtils.hasPlayerMoved(event)) {
-
-            resetCooldown(event.player.uniqueId)
-            event.player.sendMessage("${Team.CHAT_PREFIX} ${CC.RED}Your team home teleport has been cancelled.")
+            if (isOnCooldown(event.player.uniqueId))
+            {
+                resetCooldown(event.player.uniqueId)
+                event.player.sendMessage("${Team.CHAT_PREFIX} ${CC.RED}Your team home teleport has been cancelled.")
+            }
         }
     }
 }

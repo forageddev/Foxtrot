@@ -56,10 +56,13 @@ object LogoutMap : CooldownMap(30), Listener {
 
     @EventHandler
     fun onMove(event: PlayerMoveEvent) {
-        if (EventUtils.hasPlayerMoved(event)) {
-
-            resetCooldown(event.player.uniqueId)
-            event.player.sendMessage("${CC.RED}Your logout has been cancelled.")
+        if (EventUtils.hasPlayerMoved(event))
+        {
+            if (isOnCooldown(event.player.uniqueId))
+            {
+                resetCooldown(event.player.uniqueId)
+                event.player.sendMessage("${CC.RED}Your logout has been cancelled.")
+            }
         }
     }
 }

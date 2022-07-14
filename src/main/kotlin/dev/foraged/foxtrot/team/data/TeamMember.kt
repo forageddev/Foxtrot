@@ -7,6 +7,10 @@ import java.util.*
 
 class TeamMember(val uniqueId: UUID, val name: String, val role: TeamMemberRole)
 {
+    fun hasPermission(permission: TeamMemberPermission) : Boolean {
+        return permission.hasPermission(uniqueId)
+    }
+
     fun getBukkitPlayer(): Player?
     {
         return Bukkit.getPlayer(uniqueId)

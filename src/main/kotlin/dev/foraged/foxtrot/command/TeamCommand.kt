@@ -15,13 +15,16 @@ import dev.foraged.foxtrot.server.ServerHandler
 import dev.foraged.foxtrot.team.Team
 import dev.foraged.foxtrot.team.TeamHandler
 import dev.foraged.foxtrot.team.claim.ClaimHandler
+import dev.foraged.foxtrot.team.claim.LandBoard
 import dev.foraged.foxtrot.team.claim.VisualClaim
 import dev.foraged.foxtrot.team.claim.VisualClaimType
 import dev.foraged.foxtrot.team.data.TeamMember
+import dev.foraged.foxtrot.team.data.TeamMemberPermission
 import dev.foraged.foxtrot.team.data.TeamMemberRole
 import dev.foraged.foxtrot.team.enums.SystemFlag
 import dev.foraged.foxtrot.team.impl.PlayerTeam
 import dev.foraged.foxtrot.team.impl.SystemTeam
+import dev.foraged.foxtrot.team.menu.TeamPermissionsMenu
 import gg.scala.cache.uuid.ScalaStoreUuidCache
 import net.evilblock.cubed.menu.menus.SelectColorMenu
 import net.evilblock.cubed.serializers.Serializers
@@ -120,7 +123,8 @@ object TeamCommand : GoodCommand()
     @Subcommand("invite")
     @Description("Invite a player to your team")
     fun invite(player: Player, target: UUID, @Default("self") team: Team) {
-        if (((team is PlayerTeam) && (team.isOwner(player.uniqueId) || team.isCaptain(player.uniqueId) || team.isCoLeader(player.uniqueId))) && !player.hasPermission("foxtrot.team.management")) throw ConditionFailedException("You are not an officer of ${team.name} so you cannot invite members to it.")
+        if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.CREATE_INVITES)) throw ConditionFailedException("You are not allowed to invite members to ${team.name}.")
+
         if (team is PlayerTeam) {
             if (team.isMember(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is already a member of your ${team.name}.")
             if (team.invites.contains(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} has already been invited to ${team.name}.")
@@ -130,7 +134,7 @@ object TeamCommand : GoodCommand()
 
             val targetPlayer = Bukkit.getPlayer(target) ?: return
             targetPlayer.sendMessage("${CC.SEC}You have been invited to join the team ${CC.PRI}${team.name}")
-            FancyMessage().withMessage("${CC.PRI}Click here to join.").andCommandOf(ClickEvent.Action.RUN_COMMAND, "team join ${team.name}").sendToPlayer(targetPlayer)
+            FancyMessage().withMessage("${CC.PRI}Click here to join.").andCommandOf(ClickEvent.Action.RUN_COMMAND, "/team join ${team.name}").sendToPlayer(targetPlayer)
         } else throw ConditionFailedException("Retard.")
     }
 
@@ -142,8 +146,29 @@ object TeamCommand : GoodCommand()
         {
             if (!team.invites.contains(player.uniqueId)) throw ConditionFailedException("You have not been invited to join that team.")
             team.invites.remove(player.uniqueId)
+            team.permissions[player.uniqueId] = mutableListOf()
             team.members.add(TeamMember(player.uniqueId, player.name, TeamMemberRole.MEMBER))
             team.broadcast("${CC.LIGHT_PURPLE}${player.name}${CC.YELLOW} has joined the team.")
+        }
+    }
+
+    @Subcommand("leave")
+    @Description("Leave your current team")
+    fun leave(player: Player, team: Team) {
+        if (team is SystemTeam) throw ConditionFailedException("You cannot leave system teams.")
+        if (team is PlayerTeam)
+        {
+            val teamAt = LandBoard.getTeam(player.location)
+            if (!team.isMember(player.uniqueId)) throw ConditionFailedException("You are not in the team ${team.name}.")
+            if (teamAt != null && teamAt == team) throw ConditionFailedException("You cannot leave a team whilst you remain on their territory.")
+            if (team.raidable) throw ConditionFailedException("You cannot leave your team whilst you are raidable.")
+            if (team.regenTime > System.currentTimeMillis()) throw ConditionFailedException("You cannot leave your team whilst you are regenerating dtr.")
+
+            team.permissions.remove(player.uniqueId)
+            team.members.removeIf {
+                it.uniqueId == player.uniqueId
+            }
+            team.broadcast("${CC.LIGHT_PURPLE}${player.name}${CC.YELLOW} has left the team.")
         }
     }
 
@@ -213,12 +238,25 @@ object TeamCommand : GoodCommand()
 
     @Subcommand("home|hq|go")
     @Description("Teleport to your team home location")
-    fun home(player: Player, team: Team) {
+    fun home(player: Player, @Default("self") team: Team) {
         if (team !is PlayerTeam) throw ConditionFailedException("You cannot teleport to system teams.")
         if (!team.isMember(player.uniqueId)) throw ConditionFailedException("You cannot teleport to teams who you are not a part of.")
         if (team.home == null) throw ConditionFailedException("Your team does not have a home location set. Set one using /team sethome inside of your claimed land.")
 
         TeamHomeMap.startCooldown(player.uniqueId)
+    }
+
+    @Subcommand("sethome|sethq")
+    @Description("Update your teams home location")
+    fun setHome(player: Player, @Default("self") team: Team) {
+        if (team is SystemTeam) throw ConditionFailedException("You cannot set the location of system teams.")
+        if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.UPDATE_HOME)) throw ConditionFailedException("You are not allowed to updated the home location of ${team.name}.")
+        if (LandBoard.getTeam(player.location) != team) throw ConditionFailedException("Your team does not own this land.")
+
+        if (team is PlayerTeam) {
+            team.home = player.location
+            team.broadcast("${CC.LIGHT_PURPLE}${player.name} ${CC.YELLOW} has updated the team home location.")
+        }
     }
 
     @Subcommand("stuck")
@@ -232,12 +270,22 @@ object TeamCommand : GoodCommand()
         TeamStuckMap.startCooldown(player.uniqueId)
     }
 
+    @Subcommand("permissions|perms|manageperms")
+    @Description("Manage your team members permissions")
+    fun permissions(player: Player, @Default("self") team: Team) {
+        if (team is SystemTeam) throw ConditionFailedException("You cannot modify permissions of system teams.")
+        if (team is PlayerTeam && !team.isOwner(player.uniqueId)) throw ConditionFailedException("You do not have permission to modify the permissions of ${team.name}.")
+
+        TeamPermissionsMenu(team as PlayerTeam).openMenu(player)
+    }
+
     @Subcommand("claim")
     @Description("Obtain a claiming wand to create land")
     fun claim(player: Player, @Default("self") team: Team) {
         //TOO: ADD kitmap check
-        if (team !is SystemTeam && player.gameMode == GameMode.CREATIVE && ServerHandler.isWarzone(player.location)) throw ConditionFailedException("You are currently in the Warzone and can't claim land here. The Warzone ends at ${ServerHandler.WARZONE_RADIUS}.")
-        if (!(team is SystemTeam || ((team is PlayerTeam) && (team.isOwner(player.uniqueId) || team.isCaptain(player.uniqueId) || team.isCoLeader(player.uniqueId)))) && !player.hasPermission("foxtrot.team.management")) throw ConditionFailedException("You are not an officer of ${team.name} so you cannot claim for it.")
+        if (team !is SystemTeam && ServerHandler.isWarzone(player.location)) throw ConditionFailedException("You are currently in the Warzone and can't claim land here. The Warzone ends at ${ServerHandler.WARZONE_RADIUS}.")
+        if (team is SystemTeam && !player.hasPermission("foxtrot.team.management")) throw ConditionFailedException("You are not allowed to claim land for system teams.")
+        if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.CLAIM_LAND)) throw ConditionFailedException("You are not allowed to updated the home location of ${team.name}.")
 
         player.inventory.remove(Team.SELECTION_WAND)
         if (team is PlayerTeam && team.raidable) throw ConditionFailedException("You may not claim land while your faction is raidable!")

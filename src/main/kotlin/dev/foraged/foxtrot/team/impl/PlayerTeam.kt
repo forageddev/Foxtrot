@@ -5,6 +5,7 @@ import dev.foraged.foxtrot.FoxtrotExtendedPlugin
 import dev.foraged.foxtrot.team.Team
 import dev.foraged.foxtrot.team.TeamHandler
 import dev.foraged.foxtrot.team.data.TeamMember
+import dev.foraged.foxtrot.team.data.TeamMemberPermission
 import dev.foraged.foxtrot.team.data.TeamMemberRole
 import dev.foraged.foxtrot.team.dtr.RegenerationTask
 import gg.scala.store.storage.type.DataStoreStorageType
@@ -23,7 +24,10 @@ class PlayerTeam(identifier: UUID, name: String, val leader: TeamMember) : Team(
         get() = RegenerationTask.getMaxDTR(size)
     var regenTime: Long = 0
     val members = mutableSetOf<TeamMember>()
-    val home: Location? = null
+    var home: Location? = null
+    var announcement: String? = null
+    val permissions = mutableMapOf<UUID, MutableList<TeamMemberPermission>>()
+    val rolePermissions = mutableMapOf<TeamMemberRole, MutableList<TeamMemberPermission>>()
     val raidable: Boolean
         get() = deathsUntilRaidable < 0
 
@@ -70,6 +74,12 @@ class PlayerTeam(identifier: UUID, name: String, val leader: TeamMember) : Team(
         }
     val invites = mutableSetOf<UUID>()
 
+    init {
+        for (role in TeamMemberRole.values()) {
+            rolePermissions[role] = mutableListOf(*role.permissions)
+        }
+    }
+
     fun broadcast(message: String) {
         onlineMembers.forEach {
             it.sendMessage(CC.translate(message))
@@ -95,6 +105,18 @@ class PlayerTeam(identifier: UUID, name: String, val leader: TeamMember) : Team(
 
     fun isOwner(uniqueId: UUID) : Boolean {
         return leader.uniqueId == uniqueId
+    }
+
+    fun hasPermission(uniqueId: UUID, permission: TeamMemberPermission) : Boolean {
+        if (uniqueId == leader.uniqueId) return true
+        val member = getMember(uniqueId) ?: return false
+
+        var permissions = rolePermissions[member.role] ?: return false
+        if (permissions.contains(permission)) return true
+
+        permissions = this.permissions[uniqueId] ?: return false
+        if (permissions.contains(permission)) return true
+        return false
     }
 
     fun isAlly(uniqueId: UUID) : Boolean {
