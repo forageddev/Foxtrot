@@ -247,7 +247,7 @@ object TeamCommand : GoodCommand()
         }
     }
 
-    @Subcommand("officer add|captain add")
+    @Subcommand("officer add")
     @Description("Promote a team member to officer")
     fun addOfficer(player: Player, target: UUID, @Default("self") team: Team) {
         if (team is SystemTeam) throw ConditionFailedException("You cannot promote members in system team.")
@@ -263,7 +263,7 @@ object TeamCommand : GoodCommand()
         }
     }
 
-    @Subcommand("officer remove|captain remove")
+    @Subcommand("officer remove")
     @Description("Promote a team member to officer")
     fun removeOfficer(player: Player, target: UUID, @Default("self") team: Team) {
         if (team is SystemTeam) throw ConditionFailedException("You cannot promote members in system team.")
@@ -271,14 +271,14 @@ object TeamCommand : GoodCommand()
 
         if (team is PlayerTeam) {
             if (!team.isMember(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is not a member of your team.")
-            if (team.isCaptain(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is not an officer in your team.")
+            if (!team.isCaptain(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is not an officer in your team.")
 
             team.getMember(target)!!.role = TeamMemberRole.MEMBER
             team.broadcast("${CC.SEC}${player.name} has demoted ${CC.PRI}${ScalaStoreUuidCache.username(target)}${CC.SEC} to member.")
         }
     }
 
-    @Subcommand("coleader add|co-leader add")
+    @Subcommand("coleader add")
     @Description("Promote a team member to co-leader")
     fun addCoLeader(player: Player, target: UUID, @Default("self") team: Team) {
         if (team is SystemTeam) throw ConditionFailedException("You cannot promote members in system team.")
@@ -293,7 +293,7 @@ object TeamCommand : GoodCommand()
         }
     }
 
-    @Subcommand("coleader remove|co-leader remove")
+    @Subcommand("coleader remove")
     @Description("Promote a team member to co-leader")
     fun removeCoLeader(player: Player, target: UUID, @Default("self") team: Team) {
         if (team is SystemTeam) throw ConditionFailedException("You cannot promote members in system team.")
@@ -301,7 +301,7 @@ object TeamCommand : GoodCommand()
 
         if (team is PlayerTeam) {
             if (!team.isMember(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is not a member of your team.")
-            if (team.isCoLeader(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is not an co-leader in your team.")
+            if (!team.isCoLeader(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is not an co-leader in your team.")
 
             team.getMember(target)!!.role = TeamMemberRole.MEMBER
             team.broadcast("${CC.SEC}${player.name} has demoted ${CC.PRI}${ScalaStoreUuidCache.username(target)}${CC.SEC} to member.")
