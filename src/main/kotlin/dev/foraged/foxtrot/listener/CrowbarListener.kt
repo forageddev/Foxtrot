@@ -160,6 +160,7 @@ object CrowbarListener : Listener
 
     @EventHandler
     fun onBreak(event: BlockBreakEvent) {
+        if (ServerHandler.isAdminOverride(event.player)) return
         if (event.player.world.environment == World.Environment.NETHER && event.block.type == Material.MOB_SPAWNER) {
             event.player.sendMessage(ChatColor.RED.toString() + "You cannot break spawners in this dimension!")
             event.isCancelled = true

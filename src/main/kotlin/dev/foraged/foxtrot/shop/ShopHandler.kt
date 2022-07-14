@@ -44,22 +44,31 @@ object ShopHandler : Listener
 
             val material = lines[1]
 
-            var item = ItemBuilder.of(when(material) {
-                "Crowbar" -> XMaterial.IRON_AXE
-                else -> XMaterial.valueOf(material.uppercase())
-            })
+            var item = try
+            {
+                ItemBuilder.of(
+                    when (material)
+                    {
+                        "Crowbar" -> XMaterial.IRON_AXE
+                        else -> XMaterial.valueOf(material.uppercase())
+                    }
+                )
+            } catch (ex: IllegalArgumentException) {
+                null
+            }
 
-            if (material == "Crowbar") {
+            if (item != null && material == "Crowbar") {
                 item.name(CrowbarListener.CROWBAR_NAME)
                 item.setLore(CrowbarListener.getCrowbarDescription(6, 1))
             }
-            if (material.endsWith("Spawner")) {
+            if (material.contains("Spawner")) {
                 item = ItemBuilder.of(XMaterial.SPAWNER).name(material)
             }
-            if (material.endsWith("Egg")) {
-                item = ItemBuilder.of(Material.MONSTER_EGG).data(EntityType.valueOf(material.replace(" Egg", "").replace(" ", "_").uppercase()).typeId)
+            if (material.contains("Egg")) {
+                item = ItemBuilder.of(Material.MONSTER_EGG).data(EntityType.valueOf(material.replace(" ", "_").uppercase().replace("_EGG", "")).typeId)
             }
 
+            if (item == null) return null
             return Shop(sign, type, material, item.build(), lines[2].toInt(), lines[3].replace("$", "").toDouble())
         }
         return null

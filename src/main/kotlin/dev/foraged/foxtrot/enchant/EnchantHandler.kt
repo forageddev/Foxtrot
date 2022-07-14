@@ -1,10 +1,7 @@
 package dev.foraged.foxtrot.enchant
 
 import dev.foraged.commons.annotations.Listeners
-import dev.foraged.foxtrot.enchant.impl.InvisibilityEnchant
-import dev.foraged.foxtrot.enchant.impl.LifeStealerEnchant
-import dev.foraged.foxtrot.enchant.impl.RepairEnchant
-import dev.foraged.foxtrot.enchant.impl.SpeedEnchant
+import dev.foraged.foxtrot.enchant.impl.*
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import org.bukkit.ChatColor
@@ -26,6 +23,8 @@ object EnchantHandler : Listener
         registerEnchant(LifeStealerEnchant)
         registerEnchant(RepairEnchant)
         registerEnchant(SpeedEnchant)
+        registerEnchant(FireResistanceEnchant)
+        registerEnchant(RecoverEnchant)
     }
 
     fun registerEnchant(enchant: Enchant) {

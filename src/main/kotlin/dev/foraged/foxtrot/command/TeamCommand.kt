@@ -213,7 +213,7 @@ object TeamCommand : GoodCommand()
     @Description("Obtain a claiming wand to create land")
     fun claim(player: Player, @Default("self") team: Team) {
         //TOO: ADD kitmap check
-        if (team !is SystemTeam && player.gameMode == GameMode.CREATIVE && ServerHandler.isWarzone(player.location)) throw ConditionFailedException("You are currently in the Warzone and can't claim land here. The Warzone ends at \" + ServerHandler.WARZONE_RADIUS + \".\"")
+        if (team !is SystemTeam && player.gameMode == GameMode.CREATIVE && ServerHandler.isWarzone(player.location)) throw ConditionFailedException("You are currently in the Warzone and can't claim land here. The Warzone ends at ${ServerHandler.WARZONE_RADIUS}.")
         if (!(team is SystemTeam || ((team is PlayerTeam) && (team.isOwner(player.uniqueId) || team.isCaptain(player.uniqueId) || team.isCoLeader(player.uniqueId)))) && !player.hasPermission("foxtrot.team.management")) throw ConditionFailedException("You are not an officer of ${team.name} so you cannot claim for it.")
 
         player.inventory.remove(Team.SELECTION_WAND)
