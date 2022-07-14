@@ -9,6 +9,8 @@ import dev.foraged.commons.command.CommandManager
 import dev.foraged.commons.command.GoodCommand
 import dev.foraged.foxtrot.event.team.TeamCreateEvent
 import dev.foraged.foxtrot.map.BalancePersistMap
+import dev.foraged.foxtrot.map.cooldown.nopersist.TeamHomeMap
+import dev.foraged.foxtrot.map.cooldown.nopersist.TeamStuckMap
 import dev.foraged.foxtrot.server.ServerHandler
 import dev.foraged.foxtrot.team.Team
 import dev.foraged.foxtrot.team.TeamHandler
@@ -207,6 +209,27 @@ object TeamCommand : GoodCommand()
     @Description("Display the team visual map")
     fun map(player: Player) {
         VisualClaim(player, VisualClaimType.MAP, false).draw(false)
+    }
+
+    @Subcommand("home|hq|go")
+    @Description("Teleport to your team home location")
+    fun home(player: Player, team: Team) {
+        if (team !is PlayerTeam) throw ConditionFailedException("You cannot teleport to system teams.")
+        if (!team.isMember(player.uniqueId)) throw ConditionFailedException("You cannot teleport to teams who you are not a part of.")
+        if (team.home == null) throw ConditionFailedException("Your team does not have a home location set. Set one using /team sethome inside of your claimed land.")
+
+        TeamHomeMap.startCooldown(player.uniqueId)
+    }
+
+    @Subcommand("stuck")
+    @Description("Teleport to a safe location")
+    fun stuck(player: Player) {
+        if (SystemFlag.SAFE_ZONE.appliesAt(player.location)) {
+            player.teleport(Bukkit.getWorld("world").spawnLocation)
+            return
+        }
+
+        TeamStuckMap.startCooldown(player.uniqueId)
     }
 
     @Subcommand("claim")

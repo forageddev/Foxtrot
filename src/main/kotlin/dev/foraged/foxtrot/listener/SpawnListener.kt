@@ -19,6 +19,7 @@ import org.bukkit.event.block.BlockIgniteEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.hanging.HangingPlaceEvent
 import org.bukkit.event.player.PlayerDropItemEvent
@@ -101,6 +102,14 @@ object SpawnListener : Listener
     fun onEntityDamageByEntity(event: EntityDamageByEntityEvent) {
         if (event.entity !is Player || event.entity.type != EntityType.ITEM_FRAME || ServerHandler.isAdminOverride(event.damager as Player)) return
         event.isCancelled = SystemFlag.SAFE_ZONE.appliesAt(event.entity.location)
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    fun onEntityDamage(event: FoodLevelChangeEvent) {
+        if (SystemFlag.SAFE_ZONE.appliesAt(event.entity.location)) {
+            (event.entity as Player).foodLevel = 20
+            event.isCancelled = true
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

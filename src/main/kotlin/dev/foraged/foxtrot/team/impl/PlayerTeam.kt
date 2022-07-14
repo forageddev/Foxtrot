@@ -10,6 +10,7 @@ import dev.foraged.foxtrot.team.dtr.RegenerationTask
 import gg.scala.store.storage.type.DataStoreStorageType
 import net.evilblock.cubed.util.CC
 import org.bukkit.Bukkit
+import org.bukkit.Location
 import org.bukkit.entity.Player
 import java.util.*
 
@@ -22,6 +23,7 @@ class PlayerTeam(identifier: UUID, name: String, val leader: TeamMember) : Team(
         get() = RegenerationTask.getMaxDTR(size)
     var regenTime: Long = 0
     val members = mutableSetOf<TeamMember>()
+    val home: Location? = null
     val raidable: Boolean
         get() = deathsUntilRaidable < 0
 
