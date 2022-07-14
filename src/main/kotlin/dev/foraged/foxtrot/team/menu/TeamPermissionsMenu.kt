@@ -33,7 +33,9 @@ class TeamPermissionsMenu(val team: PlayerTeam) : Menu("Team - Permissions")
                 }
 
                 override fun clicked(player: Player, slot: Int, clickType: ClickType, view: InventoryView) {
-
+                    TeamRoleSelectMenu(team) {
+                        TeamRolePermissionsMenu(team, it).openMenu(player)
+                    }.openMenu(player)
                 }
             }
 

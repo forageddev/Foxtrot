@@ -13,13 +13,18 @@ import org.bukkit.inventory.InventoryView
 
 class TeamMemberPermissionsMenu(val team: PlayerTeam, val member: TeamMember) : Menu("Team Member - Permissions")
 {
+    init {
+        updateAfterClick = true
+        autoUpdate = true
+    }
+
     override fun getButtons(player: Player): Map<Int, Button>
     {
         return mutableMapOf<Int, Button>().also {
             TeamMemberPermission.values().forEach { permission ->
                 it[it.size] = object : Button() {
                     override fun getName(player: Player): String {
-                        return (if (member.hasPermission(permission)) CC.GREEN else CC.RED) + permission.displayName
+                        return (if (team.hasPermission(member.uniqueId, permission)) CC.GREEN else CC.RED) + permission.displayName
                     }
 
                     override fun getDescription(player: Player): List<String>
@@ -29,7 +34,7 @@ class TeamMemberPermissionsMenu(val team: PlayerTeam, val member: TeamMember) : 
 
                     override fun getMaterial(player: Player): XMaterial
                     {
-                        return if (member.hasPermission(permission)) XMaterial.DIAMOND else XMaterial.COAL
+                        return if (team.hasPermission(member.uniqueId, permission)) XMaterial.DIAMOND else XMaterial.COAL
                     }
 
                     override fun clicked(player: Player, slot: Int, clickType: ClickType, view: InventoryView)

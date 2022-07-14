@@ -1,9 +1,9 @@
 package dev.foraged.foxtrot.team.data
 
-enum class TeamMemberRole(vararg val permissions: TeamMemberPermission)
+enum class TeamMemberRole(val displayName: String, vararg val permissions: TeamMemberPermission)
 {
-    MEMBER,
-    OFFICER(
+    MEMBER("Member"),
+    OFFICER("Officer",
         TeamMemberPermission.CREATE_INVITES,
         TeamMemberPermission.REVOKE_INVITES,
         TeamMemberPermission.UPDATE_HOME,
@@ -12,11 +12,11 @@ enum class TeamMemberRole(vararg val permissions: TeamMemberPermission)
         TeamMemberPermission.ACCESS_SUBCLAIMS,
         TeamMemberPermission.UPDATE_ANNOUNCEMENT
     ),
-    CO_LEADER(
+    CO_LEADER("Co-Leader",
         TeamMemberPermission.DEMOTE_OFFICER,
         TeamMemberPermission.PROMOTE_OFFICER
     ),
-    LEADER(
+    LEADER("Leader",
         TeamMemberPermission.PROMOTE_CO_LEADER,
         TeamMemberPermission.DEMOTE_CO_LEADER,
         TeamMemberPermission.UNCLAIM_LAND

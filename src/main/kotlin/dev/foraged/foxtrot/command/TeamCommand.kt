@@ -154,7 +154,7 @@ object TeamCommand : GoodCommand()
 
     @Subcommand("leave")
     @Description("Leave your current team")
-    fun leave(player: Player, team: Team) {
+    fun leave(player: Player, @Default("self") team: Team) {
         if (team is SystemTeam) throw ConditionFailedException("You cannot leave system teams.")
         if (team is PlayerTeam)
         {
@@ -168,6 +168,7 @@ object TeamCommand : GoodCommand()
             team.members.removeIf {
                 it.uniqueId == player.uniqueId
             }
+            player.sendMessage("${CC.RED}You have left ${team.name}.")
             team.broadcast("${CC.LIGHT_PURPLE}${player.name}${CC.YELLOW} has left the team.")
         }
     }
@@ -180,7 +181,7 @@ object TeamCommand : GoodCommand()
         player.sendMessage("")
         if (team is PlayerTeam)
         {
-            player.sendMessage("${CC.YELLOW}Leader: ${CC.WHITE}${team.leader.name}")
+            player.sendMessage("${CC.YELLOW}Leader: ${CC.WHITE}${(if (team.offlineMembers.contains(team.leader.uniqueId)) CC.GRAY else CC.GREEN) + team.leader.name}")
             if (team.leaders.isNotEmpty()) player.sendMessage("${CC.YELLOW}Co-Leaders: ${CC.WHITE}${
                 team.leaders.joinToString(
                     ","
@@ -225,8 +226,85 @@ object TeamCommand : GoodCommand()
         if ((BalancePersistMap[player.uniqueId] ?: 0.0) < amount) throw ConditionFailedException("You cannot afford to deposit $${amount} into your teams balance.")
 
         if (team is PlayerTeam) {
-            team.broadcast("${CC.SEC}${player.name} has deposited ${CC.BLUE}$${amount}${CC.SEC} into the team balance.")
+            team.broadcast("${CC.SEC}${player.name} has deposited ${CC.PRI}$${amount}${CC.SEC} into the team balance.")
             team.balance += amount
+        }
+    }
+
+    @Subcommand("withdraw|w|takemoney")
+    @Description("Withdraw money from your team")
+    fun withdraw(player: Player, amount: Double, @Default("self") team: Team) {
+        if (team is SystemTeam) throw ConditionFailedException("You cannot withdraw money from a system team.")
+        if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.WITHDRAW_BALANCE)) throw ConditionFailedException("You are not allowed to withdraw money from ${team.name}.")
+
+
+        if (team is PlayerTeam) {
+            if (team.balance < amount) throw ConditionFailedException("You cannot afford to withdraw $${amount} from your teams balance.")
+
+            team.broadcast("${CC.SEC}${player.name} has withdrawn ${CC.PRI}$${amount}${CC.SEC} from the team balance.")
+            team.balance -= amount
+            BalancePersistMap.plus(player.uniqueId, amount)
+        }
+    }
+
+    @Subcommand("officer add|captain add")
+    @Description("Promote a team member to officer")
+    fun addOfficer(player: Player, target: UUID, @Default("self") team: Team) {
+        if (team is SystemTeam) throw ConditionFailedException("You cannot promote members in system team.")
+        if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.PROMOTE_OFFICER)) throw ConditionFailedException("You are not allowed to promote members in ${team.name}.")
+
+        if (team is PlayerTeam) {
+            if (!team.isMember(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is not a member of your team.")
+            if (team.isCoLeader(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is already a co-leader in your team.")
+            if (team.isCaptain(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is already an officer in your team.")
+
+            team.getMember(target)!!.role = TeamMemberRole.OFFICER
+            team.broadcast("${CC.SEC}${player.name} has promoted ${CC.PRI}${ScalaStoreUuidCache.username(target)}${CC.SEC} to officer.")
+        }
+    }
+
+    @Subcommand("officer remove|captain remove")
+    @Description("Promote a team member to officer")
+    fun removeOfficer(player: Player, target: UUID, @Default("self") team: Team) {
+        if (team is SystemTeam) throw ConditionFailedException("You cannot promote members in system team.")
+        if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.DEMOTE_OFFICER)) throw ConditionFailedException("You are not allowed to promote members in ${team.name}.")
+
+        if (team is PlayerTeam) {
+            if (!team.isMember(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is not a member of your team.")
+            if (team.isCaptain(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is not an officer in your team.")
+
+            team.getMember(target)!!.role = TeamMemberRole.MEMBER
+            team.broadcast("${CC.SEC}${player.name} has demoted ${CC.PRI}${ScalaStoreUuidCache.username(target)}${CC.SEC} to member.")
+        }
+    }
+
+    @Subcommand("coleader add|co-leader add")
+    @Description("Promote a team member to co-leader")
+    fun addCoLeader(player: Player, target: UUID, @Default("self") team: Team) {
+        if (team is SystemTeam) throw ConditionFailedException("You cannot promote members in system team.")
+        if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.PROMOTE_CO_LEADER)) throw ConditionFailedException("You are not allowed to promote members in ${team.name}.")
+
+        if (team is PlayerTeam) {
+            if (!team.isMember(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is not a member of your team.")
+            if (team.isCoLeader(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is already a co-leader in your team.")
+
+            team.getMember(target)!!.role = TeamMemberRole.CO_LEADER
+            team.broadcast("${CC.SEC}${player.name} has promoted ${CC.PRI}${ScalaStoreUuidCache.username(target)}${CC.SEC} to co-leader.")
+        }
+    }
+
+    @Subcommand("coleader remove|co-leader remove")
+    @Description("Promote a team member to co-leader")
+    fun removeCoLeader(player: Player, target: UUID, @Default("self") team: Team) {
+        if (team is SystemTeam) throw ConditionFailedException("You cannot promote members in system team.")
+        if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.DEMOTE_CO_LEADER)) throw ConditionFailedException("You are not allowed to promote members in ${team.name}.")
+
+        if (team is PlayerTeam) {
+            if (!team.isMember(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is not a member of your team.")
+            if (team.isCoLeader(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is not an co-leader in your team.")
+
+            team.getMember(target)!!.role = TeamMemberRole.MEMBER
+            team.broadcast("${CC.SEC}${player.name} has demoted ${CC.PRI}${ScalaStoreUuidCache.username(target)}${CC.SEC} to member.")
         }
     }
 
@@ -250,7 +328,7 @@ object TeamCommand : GoodCommand()
     @Description("Update your teams home location")
     fun setHome(player: Player, @Default("self") team: Team) {
         if (team is SystemTeam) throw ConditionFailedException("You cannot set the location of system teams.")
-        if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.UPDATE_HOME)) throw ConditionFailedException("You are not allowed to updated the home location of ${team.name}.")
+        if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.UPDATE_HOME)) throw ConditionFailedException("You are not allowed to update the home location of ${team.name}.")
         if (LandBoard.getTeam(player.location) != team) throw ConditionFailedException("Your team does not own this land.")
 
         if (team is PlayerTeam) {
@@ -285,10 +363,10 @@ object TeamCommand : GoodCommand()
         //TOO: ADD kitmap check
         if (team !is SystemTeam && ServerHandler.isWarzone(player.location)) throw ConditionFailedException("You are currently in the Warzone and can't claim land here. The Warzone ends at ${ServerHandler.WARZONE_RADIUS}.")
         if (team is SystemTeam && !player.hasPermission("foxtrot.team.management")) throw ConditionFailedException("You are not allowed to claim land for system teams.")
-        if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.CLAIM_LAND)) throw ConditionFailedException("You are not allowed to updated the home location of ${team.name}.")
+        if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.CLAIM_LAND)) throw ConditionFailedException("You are not allowed to claim land for ${team.name}.")
 
         player.inventory.remove(Team.SELECTION_WAND)
-        if (team is PlayerTeam && team.raidable) throw ConditionFailedException("You may not claim land while your faction is raidable!")
+        if (team is PlayerTeam && team.raidable) throw ConditionFailedException("You may not claim land while your team is raidable!")
         var slot = -1
         for (i in 0..8)
         {

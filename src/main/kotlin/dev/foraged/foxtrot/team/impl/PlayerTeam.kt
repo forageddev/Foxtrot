@@ -107,16 +107,19 @@ class PlayerTeam(identifier: UUID, name: String, val leader: TeamMember) : Team(
         return leader.uniqueId == uniqueId
     }
 
+    fun hasPermission(role: TeamMemberRole, permission: TeamMemberPermission) : Boolean {
+        val permissions = rolePermissions[role] ?: return false
+        if (permissions.contains(permission)) return true
+        return false
+    }
+
     fun hasPermission(uniqueId: UUID, permission: TeamMemberPermission) : Boolean {
         if (uniqueId == leader.uniqueId) return true
         val member = getMember(uniqueId) ?: return false
 
-        var permissions = rolePermissions[member.role] ?: return false
+        val permissions = this.permissions[uniqueId] ?: return false
         if (permissions.contains(permission)) return true
-
-        permissions = this.permissions[uniqueId] ?: return false
-        if (permissions.contains(permission)) return true
-        return false
+        return hasPermission(member.role, permission)
     }
 
     fun isAlly(uniqueId: UUID) : Boolean {
