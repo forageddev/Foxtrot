@@ -4,6 +4,7 @@ import dev.foraged.foxtrot.classes.PvPClassHandler
 import dev.foraged.foxtrot.classes.impl.ArcherClass
 import dev.foraged.foxtrot.map.cooldown.OpplePersistableMap
 import dev.foraged.foxtrot.map.cooldown.PvPTimerPersistableMap
+import dev.foraged.foxtrot.map.cooldown.nopersist.AbilityCooldownMap
 import dev.foraged.foxtrot.map.cooldown.nopersist.AppleMap
 import dev.foraged.foxtrot.map.cooldown.nopersist.EnderpearlMap
 import dev.foraged.foxtrot.map.cooldown.nopersist.SpawnTagMap
@@ -60,6 +61,10 @@ object FoxtrotScoreboardProvider : ScoreboardAdapter()
 
         if (EnderpearlMap.isOnCooldown(player.uniqueId)) {
             board.add("${CC.BL_PURPLE}Enderpearl${CC.GRAY}: ${CC.RED}${formatDuration(EnderpearlMap.getCooldown(player.uniqueId))}")
+        }
+
+        if (AbilityCooldownMap.isOnCooldown(player.uniqueId)) {
+            board.add("${CC.B_AQUA}Ability${CC.GRAY}: ${CC.RED}${formatDuration(AbilityCooldownMap.getCooldown(player.uniqueId))}")
         }
 
         if (AppleMap.isOnCooldown(player.uniqueId)) {
