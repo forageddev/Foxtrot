@@ -29,7 +29,7 @@ class TeamRoleSelectMenu(val team: PlayerTeam, val callback: (TeamMemberRole) ->
     {
         return mutableMapOf<Int, Button>().also { 
             TeamMemberRole.values().filterNot { it == TeamMemberRole.LEADER }.forEach { role ->
-                it[0] = object : Button() {
+                it[it.size] = object : Button() {
                     override fun getName(player: Player): String
                     {
                         return "${CC.GREEN}${role.displayName}"

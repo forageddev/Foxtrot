@@ -130,11 +130,26 @@ object TeamCommand : GoodCommand()
             if (team.invites.contains(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} has already been invited to ${team.name}.")
 
             team.invites.add(target)
-            team.broadcast("${CC.PRI}${player.name}${CC.SEC} has invited ${CC.PRI}${ScalaStoreUuidCache.username(target)}${CC.SEC} to the team!")
+            team.broadcast("${CC.PRI}${player.name}${CC.SEC} has invited ${CC.PRI}${ScalaStoreUuidCache.username(target)}${CC.SEC} to the team.")
 
             val targetPlayer = Bukkit.getPlayer(target) ?: return
             targetPlayer.sendMessage("${CC.SEC}You have been invited to join the team ${CC.PRI}${team.name}")
             FancyMessage().withMessage("${CC.PRI}Click here to join.").andCommandOf(ClickEvent.Action.RUN_COMMAND, "/team join ${team.name}").sendToPlayer(targetPlayer)
+        } else throw ConditionFailedException("Retard.")
+    }
+
+    @Subcommand("uninvite")
+    @Description("Revoke an invite for a player")
+    fun revoke(player: Player, target: UUID, @Default("self") team: Team) {
+        if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.REVOKE_INVITES)) throw ConditionFailedException("You are not revoke invites from players in ${team.name}.")
+
+        if (team is PlayerTeam) {
+            if (team.isMember(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is already a member of your ${team.name}.")
+            if (!team.invites.contains(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} has not been invited to ${team.name}.")
+
+            team.invites.remove(target)
+            team.broadcast("${CC.PRI}${player.name}${CC.SEC} has revoked an invitation for ${CC.PRI}${ScalaStoreUuidCache.username(target)}${CC.SEC}.")
+
         } else throw ConditionFailedException("Retard.")
     }
 
@@ -149,6 +164,26 @@ object TeamCommand : GoodCommand()
             team.permissions[player.uniqueId] = mutableListOf()
             team.members.add(TeamMember(player.uniqueId, player.name, TeamMemberRole.MEMBER))
             team.broadcast("${CC.LIGHT_PURPLE}${player.name}${CC.YELLOW} has joined the team.")
+        }
+    }
+
+    @Subcommand("kick")
+    @Description("Kick a member from your team")
+    fun leave(player: Player, target: UUID, @Default("self") team: Team) {
+        if (team is SystemTeam) throw ConditionFailedException("You cannot kick players from system teams.")
+        if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.KICK_MEMBER)) throw ConditionFailedException("You are not allowed kick members from ${team.name}.")
+
+        if (team is PlayerTeam)
+        {
+            if (!team.isMember(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is not in your team ${team.name}.")
+            if (team.raidable) throw ConditionFailedException("You cannot kick members from your team whilst you are raidable.")
+
+            team.permissions.remove(player.uniqueId)
+            team.members.removeIf {
+                it.uniqueId == player.uniqueId
+            }
+            player.sendMessage("${CC.RED}You have been kicked from ${team.name}.")
+            team.broadcast("${CC.LIGHT_PURPLE}${player.name}${CC.YELLOW} has kicked ${CC.LIGHT_PURPLE}${ScalaStoreUuidCache.username(target)}${CC.SEC} from the team.")
         }
     }
 
@@ -366,7 +401,7 @@ object TeamCommand : GoodCommand()
         if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.CLAIM_LAND)) throw ConditionFailedException("You are not allowed to claim land for ${team.name}.")
 
         player.inventory.remove(Team.SELECTION_WAND)
-        if (team is PlayerTeam && team.raidable) throw ConditionFailedException("You may not claim land while your team is raidable!")
+        if (team is PlayerTeam && team.raidable) throw ConditionFailedException("You may not claim land while your team is raidable.")
         var slot = -1
         for (i in 0..8)
         {
@@ -376,7 +411,7 @@ object TeamCommand : GoodCommand()
             }
         }
 
-        if (slot == -1) throw ConditionFailedException("You don't have space in your hotbar for the claim wand!")
+        if (slot == -1) throw ConditionFailedException("You don't have space in your hotbar for the claim wand.")
 
         Tasks.asyncDelayed(1L) { player.inventory.setItem(slot, Team.SELECTION_WAND.clone())}
 

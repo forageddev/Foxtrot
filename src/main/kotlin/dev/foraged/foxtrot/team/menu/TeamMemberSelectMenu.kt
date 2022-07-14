@@ -23,7 +23,7 @@ class TeamMemberSelectMenu(val team: PlayerTeam, val callback: (TeamMember) -> U
     {
         return mutableMapOf<Int, Button>().also { 
             team.members.forEach { member ->
-                it[0] = object : Button() {
+                it[it.size] = object : Button() {
                     override fun getName(player: Player): String
                     {
                         return "${CC.GREEN}${member.name}"
@@ -37,6 +37,11 @@ class TeamMemberSelectMenu(val team: PlayerTeam, val callback: (TeamMember) -> U
                     override fun getMaterial(player: Player): XMaterial
                     {
                         return XMaterial.PLAYER_HEAD
+                    }
+
+                    override fun getDamageValue(player: Player): Byte
+                    {
+                        return 3
                     }
 
                     override fun getButtonItem(player: Player): ItemStack
