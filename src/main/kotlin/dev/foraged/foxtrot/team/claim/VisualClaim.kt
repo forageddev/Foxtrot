@@ -2,9 +2,9 @@ package dev.foraged.foxtrot.team.claim
 
 import com.google.common.collect.Maps
 import dev.foraged.foxtrot.FoxtrotExtendedPlugin
-import dev.foraged.foxtrot.server.ServerHandler
+import dev.foraged.foxtrot.server.MapService
 import dev.foraged.foxtrot.team.Team
-import dev.foraged.foxtrot.team.TeamHandler
+import dev.foraged.foxtrot.team.TeamService
 import dev.foraged.foxtrot.team.impl.PlayerTeam
 import dev.foraged.foxtrot.team.impl.SystemTeam
 import net.evilblock.cubed.util.bukkit.ColorUtil
@@ -255,7 +255,7 @@ class VisualClaim(val player: Player, val type: VisualClaimType, val bypass: Boo
 
     fun setLoc(locationId: Int, clicked: Location)
     {
-        val playerTeam = TeamHandler.findTeamByPlayer(player.uniqueId)
+        val playerTeam = TeamService.findTeamByPlayer(player.uniqueId)
         if (playerTeam == null && !bypass) {
             player.sendMessage(
                 ChatColor.RED.toString() + "You have to be on a team to " + type.name.lowercase(
@@ -266,7 +266,7 @@ class VisualClaim(val player: Player, val type: VisualClaimType, val bypass: Boo
             return
         }
         if (type == VisualClaimType.CREATE) {
-            if (!bypass && !ServerHandler.isUnclaimed(clicked)) {
+            if (!bypass && !MapService.isUnclaimed(clicked)) {
                 player.sendMessage(ChatColor.RED.toString() + "You can only claim land in the Wilderness!")
                 return
             }
@@ -374,7 +374,7 @@ class VisualClaim(val player: Player, val type: VisualClaimType, val bypass: Boo
             else -> visualClaims.remove(player.name)
         }
         clearAllBlocks()
-        ClaimHandler.remove(player.uniqueId)
+        ClaimService.remove(player.uniqueId)
     }
 
     fun clearAllBlocks()
@@ -388,7 +388,7 @@ class VisualClaim(val player: Player, val type: VisualClaimType, val bypass: Boo
     fun purchaseClaim()
     {
         println("purchase")
-        val playerTeam = TeamHandler.findTeamByPlayer(player.uniqueId)
+        val playerTeam = TeamService.findTeamByPlayer(player.uniqueId)
         if (playerTeam == null && !bypass)
         {
             player.sendMessage(ChatColor.RED.toString() + "You have to be on a team to claim land!")
@@ -426,7 +426,7 @@ class VisualClaim(val player: Player, val type: VisualClaimType, val bypass: Boo
                     return
                 }
             }
-            val team = ClaimHandler[player.uniqueId] ?: playerTeam
+            val team = ClaimService[player.uniqueId] ?: playerTeam
         println("purchaseteam")
             val claim = Claim(corner1!!, corner2!!)
         println("claim")
@@ -469,7 +469,7 @@ class VisualClaim(val player: Player, val type: VisualClaimType, val bypass: Boo
 
     fun resizeClaim()
     {
-        val playerTeam = TeamHandler.findTeamByPlayer(player.uniqueId)
+        val playerTeam = TeamService.findTeamByPlayer(player.uniqueId)
         if (playerTeam == null)
         {
             player.sendMessage(ChatColor.RED.toString() + "You have to be on a team to resize land!")
@@ -589,7 +589,7 @@ class VisualClaim(val player: Player, val type: VisualClaimType, val bypass: Boo
     {
         if (bypass) return false
 
-        val playerTeam = TeamHandler.findTeamByPlayer(player.uniqueId)!!
+        val playerTeam = TeamService.findTeamByPlayer(player.uniqueId)!!
         if (containsOtherClaim(claim))
         {
             player.sendMessage(ChatColor.RED.toString() + "This claim contains unclaimable land!")

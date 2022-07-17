@@ -82,7 +82,7 @@ abstract class PvPClass(val name: String, val warmup: Int, val consumables: List
     fun onInteract(event: PlayerInteractEvent) {
         if (event.player.itemInHand == null || !event.action.name.contains("RIGHT")) return
 
-        if (PvPClassHandler.hasKitOn(event.player, this) && consumables.isNotEmpty() && consumables.contains(event.player.itemInHand.type)) {
+        if (PvPClassService.hasKitOn(event.player, this) && consumables.isNotEmpty() && consumables.contains(event.player.itemInHand.type)) {
             if (itemConsumed(event.player, event.item.type)) {
                 if (event.player.itemInHand.amount > 1) event.player.itemInHand.amount = event.player.itemInHand.amount - 1
                 else event.player.inventory.remove(event.player.itemInHand)

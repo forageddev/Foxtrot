@@ -12,7 +12,7 @@ class EnchantTask : Runnable
     {
         Bukkit.getServer().onlinePlayers.forEach { player ->
             player.inventory.armorContents.filterNotNull().filter { it.type != Material.AIR }.forEach { item ->
-                EnchantHandler.findEnchants(item).filterNot { it.key is RepairEnchant }.forEach {
+                EnchantService.findEnchants(item).filterNot { it.key is RepairEnchant }.forEach {
                     it.key.tick(player, it.value)
                 }
             }

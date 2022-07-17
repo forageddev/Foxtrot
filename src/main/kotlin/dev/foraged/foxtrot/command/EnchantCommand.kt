@@ -11,7 +11,7 @@ import dev.foraged.commons.annotations.commands.customizer.CommandManagerCustomi
 import dev.foraged.commons.command.CommandManager
 import dev.foraged.commons.command.GoodCommand
 import dev.foraged.foxtrot.enchant.Enchant
-import dev.foraged.foxtrot.enchant.EnchantHandler
+import dev.foraged.foxtrot.enchant.EnchantService
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.command.CommandSender
@@ -26,7 +26,7 @@ object EnchantCommand : GoodCommand()
     fun customizer(manager: CommandManager) {
         manager.commandContexts.registerContext(Enchant::class.java) {
             val enchant = it.popFirstArg().lowercase()
-            return@registerContext EnchantHandler.findEnchant(enchant) ?: throw ConditionFailedException("There is no enchant registered with the id \"${enchant}\".")
+            return@registerContext EnchantService.findEnchant(enchant) ?: throw ConditionFailedException("There is no enchant registered with the id \"${enchant}\".")
         }
     }
 

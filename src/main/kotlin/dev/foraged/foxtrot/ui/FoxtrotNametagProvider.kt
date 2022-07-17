@@ -1,18 +1,17 @@
 package dev.foraged.foxtrot.ui
 
 import dev.foraged.foxtrot.team.Team
-import dev.foraged.foxtrot.team.TeamHandler
+import dev.foraged.foxtrot.team.TeamService
 import net.evilblock.cubed.nametag.NametagInfo
 import net.evilblock.cubed.nametag.NametagProvider
 import net.evilblock.cubed.util.CC
-import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 
 object FoxtrotNametagProvider : NametagProvider("Foxtrot Provider", 5)
 {
     override fun fetchNametag(toRefresh: Player, refreshFor: Player): NametagInfo?
     {
-        val viewerTeam = TeamHandler.findTeamByPlayer(refreshFor.uniqueId)
+        val viewerTeam = TeamService.findTeamByPlayer(refreshFor.uniqueId)
         var nametagInfo: NametagInfo? = null
 
         if (viewerTeam != null)

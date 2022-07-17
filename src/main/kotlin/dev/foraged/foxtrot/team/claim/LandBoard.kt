@@ -4,7 +4,7 @@ import com.google.common.collect.HashMultimap
 import com.google.common.collect.Multimap
 import dev.foraged.foxtrot.FoxtrotExtendedPlugin
 import dev.foraged.foxtrot.team.Team
-import dev.foraged.foxtrot.team.TeamHandler
+import dev.foraged.foxtrot.team.TeamService
 import org.bukkit.Location
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -28,7 +28,7 @@ object LandBoard : Listener
 
     fun loadFromTeams()
     {
-        for (team in TeamHandler.teams)
+        for (team in TeamService.teams)
         {
             for (claim in team.claims)
             {

@@ -2,7 +2,7 @@ package dev.foraged.foxtrot.classes.impl
 
 import dev.foraged.commons.annotations.Listeners
 import dev.foraged.foxtrot.classes.PvPClass
-import dev.foraged.foxtrot.classes.PvPClassHandler
+import dev.foraged.foxtrot.classes.PvPClassService
 import dev.foraged.foxtrot.map.CobblestonePersistMap
 import dev.foraged.foxtrot.map.ore.impl.DiamondPersistableMap
 import net.evilblock.cubed.util.CC
@@ -94,7 +94,7 @@ object MinerClass : PvPClass("Miner", 10, listOf())
         if (event.entity !is Player) return
 
         val player = event.entity as Player
-        if (!PvPClassHandler.hasKitOn(player, this)) return
+        if (!PvPClassService.hasKitOn(player, this)) return
 
         noDamage[player.name] = 15
         if (invis.containsKey(player.name) && invis[player.name] != 0) {
@@ -109,7 +109,7 @@ object MinerClass : PvPClass("Miner", 10, listOf())
         if (event.damager !is Player || event.entity !is Player) return
 
         val player = event.damager as Player
-        if (!PvPClassHandler.hasKitOn(player, this)) return
+        if (!PvPClassService.hasKitOn(player, this)) return
 
         noDamage[player.name] = 15
         if (invis.containsKey(player.name) && invis[player.name] != 0) {
@@ -125,7 +125,7 @@ object MinerClass : PvPClass("Miner", 10, listOf())
         if (event.from.blockY == event.to.blockY) return
 
         val player = event.player
-        if (!PvPClassHandler.hasKitOn(player, this)) return
+        if (!PvPClassService.hasKitOn(player, this)) return
 
         if (event.to.blockY <= Y_HEIGHT) { // Going below 20
             if (!invis.containsKey(player.name)) {

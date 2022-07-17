@@ -6,6 +6,8 @@ import dev.foraged.foxtrot.team.claim.Claim
 import dev.foraged.foxtrot.team.claim.LandBoard
 import dev.foraged.foxtrot.team.enums.SystemFlag
 import dev.foraged.foxtrot.team.impl.SystemTeam
+import gg.scala.flavor.service.Configure
+import gg.scala.flavor.service.Service
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.Location
@@ -13,12 +15,18 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import java.util.*
 
+@Service
 object BorderThread : Thread("Foxtrot - Border Thread") {
 
     val REGION_DISTANCE = 8
     val REGION_DISTANCE_SQUARED = REGION_DISTANCE * REGION_DISTANCE
 
     private val sentBlockChanges: MutableMap<String, MutableMap<Location, Long>> = HashMap()
+
+    @Configure
+    fun configure() {
+        start()
+    }
 
     override fun run() {
         while (true) {

@@ -72,11 +72,11 @@ abstract class Enchant(
     }
 
     fun hasEnchant(item: ItemStack) : Boolean {
-        return EnchantHandler.findEnchants(item).containsKey(this)
+        return EnchantService.findEnchants(item).containsKey(this)
     }
 
     fun getEnchantLevel(item: ItemStack) : Int {
-        return EnchantHandler.findEnchants(item)[this] ?: -1
+        return EnchantService.findEnchants(item)[this] ?: -1
     }
 
     fun apply(item: ItemStack, addLevel: Int) {

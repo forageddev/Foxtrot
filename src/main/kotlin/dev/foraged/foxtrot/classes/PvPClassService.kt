@@ -4,6 +4,7 @@ import dev.foraged.commons.annotations.Listeners
 import dev.foraged.foxtrot.classes.impl.ArcherClass
 import dev.foraged.foxtrot.classes.impl.MinerClass
 import dev.foraged.foxtrot.event.BardRestoreEvent
+import gg.scala.flavor.service.Service
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -13,8 +14,9 @@ import org.bukkit.event.player.PlayerKickEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import java.util.*
 
+@Service
 @Listeners
-object PvPClassHandler : Listener
+object PvPClassService : Listener
 {
     val equippedKits = hashMapOf<String, PvPClass>()
     val savedPotions = hashMapOf<UUID, PvPClass.SavedPotion>()

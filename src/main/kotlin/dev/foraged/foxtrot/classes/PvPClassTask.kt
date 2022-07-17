@@ -11,21 +11,21 @@ class PvPClassTask : Runnable
     override fun run()
     {
         Bukkit.getServer().onlinePlayers.forEach { player ->
-            if (PvPClassHandler.equippedKits.contains(player.name))
+            if (PvPClassService.equippedKits.contains(player.name))
             {
-                val pvpClass = PvPClassHandler.equippedKits[player.name]!!
+                val pvpClass = PvPClassService.equippedKits[player.name]!!
 
                 if (!pvpClass.qualifies(player.inventory))
                 {
-                    PvPClassHandler.equippedKits.remove(player.name)
+                    PvPClassService.equippedKits.remove(player.name)
                     player.sendMessage(ChatColor.AQUA.toString() + "Class: " + ChatColor.BOLD + pvpClass.name + ChatColor.GRAY + " --> " + ChatColor.RED + "Disabled!")
                     pvpClass.remove(player)
                 } else if (!player.hasMetadata("frozen")) pvpClass.tick(player)
             } else {
-                PvPClassHandler.classes.forEach { pvpClass ->
+                PvPClassService.classes.forEach { pvpClass ->
                     if (pvpClass.qualifies(player.inventory) && pvpClass.canApply(player) && !player.hasMetadata("frozen")) {
                         pvpClass.apply(player)
-                        PvPClassHandler.equippedKits[player.name] = pvpClass
+                        PvPClassService.equippedKits[player.name] = pvpClass
                         player.sendMessage("${CC.AQUA}Class: ${CC.BOLD}${pvpClass.name}${CC.GRAY} --> ${CC.GREEN}Enabled!")
                         player.sendMessage("${CC.AQUA}Class Info: ${CC.GREEN}${pvpClass.siteLink}")
                     }
@@ -33,6 +33,6 @@ class PvPClassTask : Runnable
             }
         }
 
-        PvPClassHandler.checkSavedPotions()
+        PvPClassService.checkSavedPotions()
     }
 }

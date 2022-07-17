@@ -1,16 +1,13 @@
 package dev.foraged.foxtrot.team.impl
 
-import com.google.common.collect.ImmutableMap
-import dev.foraged.foxtrot.FoxtrotExtendedPlugin
 import dev.foraged.foxtrot.team.Team
-import dev.foraged.foxtrot.team.TeamHandler
+import dev.foraged.foxtrot.team.TeamService
 import dev.foraged.foxtrot.team.data.TeamMember
 import dev.foraged.foxtrot.team.data.TeamMemberPermission
 import dev.foraged.foxtrot.team.data.TeamMemberRole
 import dev.foraged.foxtrot.team.dtr.RegenerationTask
 import gg.scala.store.storage.type.DataStoreStorageType
 import net.evilblock.cubed.util.CC
-import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import java.util.*
@@ -169,11 +166,11 @@ class PlayerTeam(identifier: UUID, name: String, val leader: TeamMember) : Team(
 
     override fun saveEntry()
     {
-        TeamHandler.playerTeamController.save(this, DataStoreStorageType.ALL)
+        TeamService.playerTeamController.save(this, DataStoreStorageType.ALL)
     }
 
     override fun deleteEntry()
     {
-        TeamHandler.playerTeamController.delete(identifier, DataStoreStorageType.ALL)
+        TeamService.playerTeamController.delete(identifier, DataStoreStorageType.ALL)
     }
 }

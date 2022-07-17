@@ -18,6 +18,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.player.PlayerMoveEvent
+import org.bukkit.scheduler.BukkitTask
 import java.util.*
 
 @RegisterMap
@@ -27,6 +28,7 @@ object TeamStuckMap : CooldownMap(120), Listener {
     const val MAX_DISTANCE = 5
     val locations = mutableMapOf<UUID, Location>()
     val resetMap = mutableSetOf<UUID>()
+    val taskTrack = mutableMapOf<UUID, Pair<BukkitTask, BukkitTask>>()
 
     override fun startCooldown(uuid: UUID, seconds: Int)
     {
@@ -36,11 +38,9 @@ object TeamStuckMap : CooldownMap(120), Listener {
         locations[uuid] = origin
 
         var safeLocation: Location? = origin
-        Tasks.asyncDelayed((seconds - 5) * 20L) {
+        taskTrack[uuid] = Tasks.asyncDelayed((seconds - 5) * 20L) {
             safeLocation = nearestSafeLocation(origin)
-        }
-
-        Tasks.delayed(seconds * 20L) {
+        } to Tasks.delayed(seconds * 20L) {
             if (resetMap.contains(uuid)) {
                 resetMap.remove(uuid)
                 return@delayed
@@ -58,27 +58,31 @@ object TeamStuckMap : CooldownMap(120), Listener {
     {
         resetMap.add(uuid)
         locations.remove(uuid)
+        taskTrack[uuid]?.first?.cancel()
+        taskTrack[uuid]?.second?.cancel()
+        taskTrack.remove(uuid)
         super.resetCooldown(uuid)
     }
 
     @EventHandler
     fun onDamage(event: EntityDamageEvent) {
         if (event.entity !is Player) return
+        if (!isOnCooldown(event.entity.uniqueId)) return
 
         resetCooldown(event.entity.uniqueId)
-        event.entity.sendMessage("${Team.CHAT_PREFIX} ${CC.RED}Your stuck teleport has been cancelled.")
+        event.entity.sendMessage("${Team.CHAT_PREFIX}${CC.RED}Your stuck teleport has been cancelled.")
     }
 
     @EventHandler
     fun onMove(event: PlayerMoveEvent) {
         if (EventUtils.hasPlayerMoved(event)) {
-            if (isOnCooldown(event.player.uniqueId))
-            {
-                val origin = locations[event.player.uniqueId] ?: return
-                if (event.to.distance(origin) > MAX_DISTANCE) {
-                    resetCooldown(event.player.uniqueId)
-                    event.player.sendMessage("${Team.CHAT_PREFIX} ${CC.RED}Your stuck teleport has been cancelled as you moved more than ${MAX_DISTANCE} blocks.")
-            }
+            if (!isOnCooldown(event.player.uniqueId)) return
+
+
+            val origin = locations[event.player.uniqueId] ?: return
+            if (event.to.distance(origin) > MAX_DISTANCE) {
+                resetCooldown(event.player.uniqueId)
+                event.player.sendMessage("${Team.CHAT_PREFIX}${CC.RED}Your stuck teleport has been cancelled as you moved more than ${MAX_DISTANCE} blocks.")
             }
         }
     }

@@ -1,10 +1,12 @@
 package dev.foraged.foxtrot.team.claim
 
 import dev.foraged.foxtrot.team.Team
-import dev.foraged.foxtrot.team.TeamHandler
+import dev.foraged.foxtrot.team.TeamService
+import gg.scala.flavor.service.Service
 import java.util.*
 
-object ClaimHandler
+@Service
+object ClaimService
 {
     private val claimingMap = mutableMapOf<UUID, UUID>()
 
@@ -17,6 +19,6 @@ object ClaimHandler
     }
 
     operator fun get(uuid: UUID) : Team? {
-        return TeamHandler.teams.find { it.identifier == claimingMap[uuid] }
+        return TeamService.teams.find { it.identifier == claimingMap[uuid] }
     }
 }

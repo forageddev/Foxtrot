@@ -17,8 +17,10 @@ import org.bukkit.entity.Player
 import org.bukkit.entity.Snowball
 import org.bukkit.event.EventHandler
 import org.bukkit.event.entity.EntityDamageByEntityEvent
+import org.bukkit.event.entity.ProjectileLaunchEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.metadata.FixedMetadataValue
+import java.util.UUID
 
 @Listeners
 object SwitcherAbility : Ability("switcher", "Switcher", ChatColor.AQUA, Material.SNOW_BALL, listOf(
@@ -46,8 +48,7 @@ object SwitcherAbility : Ability("switcher", "Switcher", ChatColor.AQUA, Materia
             if (player.itemInHand.amount == 1) player.itemInHand = null
             else player.itemInHand.amount--
 
-            val snowball = player.launchProjectile(Snowball::class.java)
-            snowball.setMetadata("Switcher", FixedMetadataValue(FoxtrotExtendedPlugin.instance, true))
+            player.launchProjectile(Snowball::class.java)
             startCooldown(player.uniqueId)
         }
     }
@@ -55,8 +56,8 @@ object SwitcherAbility : Ability("switcher", "Switcher", ChatColor.AQUA, Materia
     @EventHandler
     fun onDamage(event: EntityDamageByEntityEvent) {
         if (event.entity !is Player) return
-        if (event.damager is Snowball && event.entity.hasMetadata("Switcher")) {
-            val damager = EventUtils.getAttacker(event.damager) ?: return
+        if (event.damager is Snowball) {
+            val damager = (event.damager as Snowball).shooter as Player
             val location = damager.location.clone()
 
             if (PvPTimerPersistableMap.isOnCooldown(event.entity.uniqueId)) {

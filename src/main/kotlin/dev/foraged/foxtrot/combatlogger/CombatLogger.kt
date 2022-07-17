@@ -2,8 +2,8 @@ package dev.foraged.foxtrot.combatlogger
 
 import dev.foraged.foxtrot.map.CombatLoggerTrackerPersistMap
 import dev.foraged.foxtrot.map.stats.DeathsPersistMap
-import dev.foraged.foxtrot.server.ServerHandler
-import dev.foraged.foxtrot.team.TeamHandler
+import dev.foraged.foxtrot.server.MapService
+import dev.foraged.foxtrot.team.TeamService
 import gg.scala.cache.uuid.ScalaStoreUuidCache
 import net.evilblock.cubed.entity.EntityHandler
 import net.evilblock.cubed.entity.npc.NpcEntity
@@ -24,7 +24,7 @@ class CombatLogger(val owner: Player) : NpcEntity(listOf(
     var contents = owner.inventory.contents
 
     init {
-        CombatLoggerHandler.loggers[this] = System.currentTimeMillis()
+        CombatLoggerService.loggers[this] = System.currentTimeMillis()
         helmet = owner.inventory.helmet
         chestplate = owner.inventory.chestplate
         leggings = owner.inventory.leggings
@@ -59,10 +59,10 @@ class CombatLogger(val owner: Player) : NpcEntity(listOf(
             CombatLoggerTrackerPersistMap[uniqueId] = true
             DeathsPersistMap[uniqueId]?.inc()
             location.world.strikeLightningEffect(location)
-            if (!ServerHandler.KIT_MAP) {
+            if (!MapService.KIT_MAP) {
                 // todo: do deathban logic
             }
-            val team = TeamHandler.findTeamByPlayer(uniqueId) ?: return
+            val team = TeamService.findTeamByPlayer(uniqueId) ?: return
             team.playerDeath(ScalaStoreUuidCache.username(uniqueId) ?: uniqueId.toString(), 1.0)
         }
         super.damage(amount)

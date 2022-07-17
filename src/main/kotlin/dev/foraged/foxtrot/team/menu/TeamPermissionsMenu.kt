@@ -1,7 +1,6 @@
 package dev.foraged.foxtrot.team.menu
 
 import com.cryptomorin.xseries.XMaterial
-import dev.foraged.foxtrot.team.TeamHandler
 import dev.foraged.foxtrot.team.impl.PlayerTeam
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu

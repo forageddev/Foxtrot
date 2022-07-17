@@ -1,6 +1,6 @@
 package dev.foraged.foxtrot.team.data
 
-import dev.foraged.foxtrot.team.TeamHandler
+import dev.foraged.foxtrot.team.TeamService
 import java.util.*
 
 enum class TeamMemberPermission(val displayName: String)
@@ -20,7 +20,7 @@ enum class TeamMemberPermission(val displayName: String)
     KICK_MEMBER("Kick Members");
 
     fun hasPermission(uuid: UUID) : Boolean {
-        val team = TeamHandler.findTeamByPlayer(uuid) ?: return false
+        val team = TeamService.findTeamByPlayer(uuid) ?: return false
         return team.hasPermission(uuid, this)
     }
 }

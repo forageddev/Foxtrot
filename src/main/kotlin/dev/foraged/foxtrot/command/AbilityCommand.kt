@@ -11,11 +11,8 @@ import dev.foraged.commons.annotations.commands.customizer.CommandManagerCustomi
 import dev.foraged.commons.command.CommandManager
 import dev.foraged.commons.command.GoodCommand
 import dev.foraged.foxtrot.ability.Ability
-import dev.foraged.foxtrot.ability.AbilityHandler
-import dev.foraged.foxtrot.enchant.Enchant
-import dev.foraged.foxtrot.enchant.EnchantHandler
+import dev.foraged.foxtrot.ability.AbilityService
 import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
@@ -28,7 +25,7 @@ object AbilityCommand : GoodCommand()
     fun customizer(manager: CommandManager) {
         manager.commandContexts.registerContext(Ability::class.java) {
             val ability = it.popFirstArg().lowercase()
-            return@registerContext AbilityHandler.findAbility(ability) ?: throw ConditionFailedException("There is no ability registered with the id \"${ability}\".")
+            return@registerContext AbilityService.findAbility(ability) ?: throw ConditionFailedException("There is no ability registered with the id \"${ability}\".")
         }
     }
 

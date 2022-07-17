@@ -5,7 +5,7 @@ import dev.foraged.commons.acf.ConditionFailedException
 import dev.foraged.commons.acf.annotation.*
 import dev.foraged.commons.annotations.commands.AutoRegister
 import dev.foraged.commons.command.GoodCommand
-import dev.foraged.foxtrot.server.ServerHandler
+import dev.foraged.foxtrot.server.MapService
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.time.Duration
 import net.evilblock.cubed.util.time.TimeUtil
@@ -25,9 +25,9 @@ object StartOfTheWorldCommand : GoodCommand()
     @Subcommand("enable|disable")
     @Description("Disable your start of the world protection")
     fun enable(player: Player) {
-        if (ServerHandler.SOTW_ENABLED.contains(player.uniqueId)) throw ConditionFailedException("You do not have an active start of the world timer.")
+        if (MapService.SOTW_ENABLED.contains(player.uniqueId)) throw ConditionFailedException("You do not have an active start of the world timer.")
 
-        ServerHandler.SOTW_ENABLED.add(player.uniqueId)
+        MapService.SOTW_ENABLED.add(player.uniqueId)
         player.sendMessage("${CC.GREEN}Your start of the world timer has been successfully removed.")
     }
 
@@ -35,7 +35,7 @@ object StartOfTheWorldCommand : GoodCommand()
     @CommandPermission("foxtrot.sotw")
     @Description("Start the start of the world protection timer")
     fun start(player: Player, duration: Duration) {
-        ServerHandler.SOTW_EXPIRES = System.currentTimeMillis() + duration.get().milliseconds.inWholeMilliseconds
+        MapService.SOTW_EXPIRES = System.currentTimeMillis() + duration.get().milliseconds.inWholeMilliseconds
         player.sendMessage("${CC.SEC}You have started the start of the world timer for ${CC.LIGHT_PURPLE}${TimeUtil.formatIntoDetailedString(
             duration.get().seconds.inWholeSeconds.toInt() / 1000
         )}")
@@ -45,7 +45,7 @@ object StartOfTheWorldCommand : GoodCommand()
     @CommandPermission("foxtrot.sotw")
     @Description("Extend the start of the world protection timer")
     fun extend(player: Player, duration: Duration) {
-        ServerHandler.SOTW_EXPIRES = ServerHandler.SOTW_EXPIRES + duration.get().milliseconds.inWholeMilliseconds
+        MapService.SOTW_EXPIRES = MapService.SOTW_EXPIRES + duration.get().milliseconds.inWholeMilliseconds
 
         player.sendMessage("${CC.SEC}You have extended the start of the world timer by ${CC.LIGHT_PURPLE}${TimeUtil.formatIntoDetailedString(
             duration.get().seconds.inWholeSeconds.toInt() / 1000
@@ -56,7 +56,7 @@ object StartOfTheWorldCommand : GoodCommand()
     @CommandPermission("foxtrot.sotw")
     @Description("Decrease the start of the world protection timer")
     fun subtract(player: Player, duration: Duration) {
-        ServerHandler.SOTW_EXPIRES = ServerHandler.SOTW_EXPIRES - duration.get().milliseconds.inWholeMilliseconds
+        MapService.SOTW_EXPIRES = MapService.SOTW_EXPIRES - duration.get().milliseconds.inWholeMilliseconds
 
         player.sendMessage("${CC.SEC}You have decreased the start of the world timer by ${CC.LIGHT_PURPLE}${TimeUtil.formatIntoDetailedString(
             duration.get().seconds.inWholeSeconds.toInt() / 1000
@@ -67,7 +67,7 @@ object StartOfTheWorldCommand : GoodCommand()
     @CommandPermission("foxtrot.sotw")
     @Description("Reset start of the world protection timer for everyone")
     fun all(player: Player) {
-        ServerHandler.SOTW_ENABLED = mutableSetOf()
+        MapService.SOTW_ENABLED = mutableSetOf()
         player.sendMessage("${CC.SEC}You have reset the enabled players set for start of the world.")
     }
 
@@ -75,7 +75,7 @@ object StartOfTheWorldCommand : GoodCommand()
     @CommandPermission("foxtrot.sotw")
     @Description("Reset start of the world protection timer for a target")
     fun reset(player: Player, target: Player) {
-        ServerHandler.SOTW_ENABLED.remove(target.uniqueId)
+        MapService.SOTW_ENABLED.remove(target.uniqueId)
         player.sendMessage("${CC.SEC}You have re enabled ${target.displayName}${CC.SEC}'s start of the world timer.")
     }
 
@@ -83,8 +83,8 @@ object StartOfTheWorldCommand : GoodCommand()
     @CommandPermission("foxtrot.sotw")
     @Description("Stop the start of the world protection timer")
     fun stop(player: Player) {
-        ServerHandler.SOTW_EXPIRES = -1
-        ServerHandler.SOTW_ENABLED = mutableSetOf()
+        MapService.SOTW_EXPIRES = -1
+        MapService.SOTW_ENABLED = mutableSetOf()
 
         player.sendMessage("${CC.SEC}You have stopped the start of the world timer.")
     }

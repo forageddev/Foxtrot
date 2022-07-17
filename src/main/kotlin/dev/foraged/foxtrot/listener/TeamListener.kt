@@ -1,9 +1,9 @@
 package dev.foraged.foxtrot.listener
 
 import dev.foraged.commons.annotations.Listeners
-import dev.foraged.foxtrot.server.ServerHandler
+import dev.foraged.foxtrot.server.MapService
 import dev.foraged.foxtrot.team.Team
-import dev.foraged.foxtrot.team.TeamHandler
+import dev.foraged.foxtrot.team.TeamService
 import dev.foraged.foxtrot.team.claim.LandBoard
 import dev.foraged.foxtrot.team.enums.SystemFlag
 import dev.foraged.foxtrot.team.impl.PlayerTeam
@@ -33,7 +33,7 @@ object TeamListener : Listener
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent)
     {
-        val team = TeamHandler.findTeamByPlayer(event.player.uniqueId)
+        val team = TeamService.findTeamByPlayer(event.player.uniqueId)
         if (team != null) {
             for (player in Bukkit.getServer().onlinePlayers) {
                 if (team.isMember(player.uniqueId)) {
@@ -50,7 +50,7 @@ object TeamListener : Listener
     @EventHandler
     fun onPlayerQuit(event: PlayerQuitEvent)
     {
-        val team = TeamHandler.findTeamByPlayer(event.player.uniqueId)
+        val team = TeamService.findTeamByPlayer(event.player.uniqueId)
         if (team != null) {
             for (player in Bukkit.getServer().onlinePlayers) {
                 if (player == event.player) continue
@@ -67,8 +67,8 @@ object TeamListener : Listener
     @EventHandler(priority = EventPriority.HIGH)
     fun onBlockIgnite(event: BlockIgniteEvent) {
         if (event.player == null) return
-        if (ServerHandler.isAdminOverride(event.player)) return
-        if (ServerHandler.isUnclaimedOrRaidable(event.block.location)) return
+        if (MapService.isAdminOverride(event.player)) return
+        if (MapService.isUnclaimedOrRaidable(event.block.location)) return
 
         val owner = LandBoard.getTeam(event.block.location)
         if (owner != null) {
@@ -81,7 +81,7 @@ object TeamListener : Listener
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onBlockPlace(event: BlockPlaceEvent)
     {
-        if (ServerHandler.isAdminOverride(event.player) || ServerHandler.isUnclaimedOrRaidable(event.block.location)) return
+        if (MapService.isAdminOverride(event.player) || MapService.isUnclaimedOrRaidable(event.block.location)) return
 
         val team = LandBoard.getTeam(event.block.location)
         if (team is SystemTeam || team is PlayerTeam && !team.isMember(event.player.uniqueId)) {
@@ -94,7 +94,7 @@ object TeamListener : Listener
     @EventHandler(ignoreCancelled = true) // normal priority
     fun onBlockBreak(event: BlockBreakEvent)
     {
-        if (ServerHandler.isAdminOverride(event.player) || ServerHandler.isUnclaimedOrRaidable(event.block.location)) return
+        if (MapService.isAdminOverride(event.player) || MapService.isUnclaimedOrRaidable(event.block.location)) return
 
         val team = LandBoard.getTeam(event.block.location) ?: return
 
@@ -142,7 +142,7 @@ object TeamListener : Listener
     @EventHandler(priority = EventPriority.HIGH)
     fun onHangingPlace(event: HangingPlaceEvent)
     {
-        if (ServerHandler.isAdminOverride(event.player) || ServerHandler.isUnclaimedOrRaidable(event.entity.location)) return
+        if (MapService.isAdminOverride(event.player) || MapService.isUnclaimedOrRaidable(event.entity.location)) return
 
         val team = LandBoard.getTeam(event.entity.location)
         event.isCancelled = team is SystemTeam || team is PlayerTeam && !team.isMember(event.player.uniqueId)
@@ -152,8 +152,8 @@ object TeamListener : Listener
     @EventHandler(priority = EventPriority.HIGH)
     fun onHangingBreakByEntity(event: HangingBreakByEntityEvent)
     {
-        if (event.remover !is Player || ServerHandler.isAdminOverride(event.remover as Player)) return
-        if (ServerHandler.isUnclaimedOrRaidable(event.entity.location)) return
+        if (event.remover !is Player || MapService.isAdminOverride(event.remover as Player)) return
+        if (MapService.isUnclaimedOrRaidable(event.entity.location)) return
 
         val team = LandBoard.getTeam(event.entity.location)
         event.isCancelled = team is SystemTeam || team is PlayerTeam && !team.isMember(event.remover.uniqueId)
@@ -162,8 +162,8 @@ object TeamListener : Listener
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onPlayerInteractEntityEvent(event: PlayerInteractEntityEvent)
     {
-        if (event.rightClicked.type != EntityType.ITEM_FRAME || ServerHandler.isAdminOverride(event.player)) return
-        if (ServerHandler.isUnclaimedOrRaidable(event.rightClicked.location)) return
+        if (event.rightClicked.type != EntityType.ITEM_FRAME || MapService.isAdminOverride(event.player)) return
+        if (MapService.isUnclaimedOrRaidable(event.rightClicked.location)) return
         val team = LandBoard.getTeam(event.rightClicked.location)
         event.isCancelled = team is SystemTeam || team is PlayerTeam && !team.isMember(event.player.uniqueId)
     }
@@ -175,7 +175,7 @@ object TeamListener : Listener
         if (event.entity.type != EntityType.ITEM_FRAME) return
 
         val damager = EventUtils.getAttacker(event.damager)
-        if (damager == null || ServerHandler.isAdminOverride(damager) || ServerHandler.isUnclaimedOrRaidable(event.entity.location)) return
+        if (damager == null || MapService.isAdminOverride(damager) || MapService.isUnclaimedOrRaidable(event.entity.location)) return
 
         val team = LandBoard.getTeam(event.entity.location)
         event.isCancelled = team is SystemTeam || team is PlayerTeam && !team.isMember(event.damager.uniqueId)
@@ -188,7 +188,7 @@ object TeamListener : Listener
 
         val damager = EventUtils.getAttacker(event.damager) // find the player damager if one exists
         if (damager != null) {
-            val team = TeamHandler.findTeamByPlayer(damager.uniqueId)
+            val team = TeamService.findTeamByPlayer(damager.uniqueId)
             val victim = event.entity as Player
             if (team != null && event.cause != EntityDamageEvent.DamageCause.FALL) {
                 if (team.isMember(victim.uniqueId))
@@ -210,7 +210,7 @@ object TeamListener : Listener
         val damager = EventUtils.getAttacker(event.damager) // find the player damager if one exists
         val victim = event.entity as Horse
         if (damager != null && victim.isTamed) {
-            val damagerTeam = TeamHandler.findTeamByPlayer(damager.uniqueId)
+            val damagerTeam = TeamService.findTeamByPlayer(damager.uniqueId)
             val horseOwner = victim.owner.uniqueId
             if (damager.uniqueId != horseOwner && damagerTeam != null && damagerTeam.isMember(horseOwner)) {
                 event.isCancelled = true
@@ -227,7 +227,7 @@ object TeamListener : Listener
     fun onBucketEmpty(event: PlayerBucketEmptyEvent)
     {
         val checkLocation = event.blockClicked.getRelative(event.blockFace).location
-        if (ServerHandler.isAdminOverride(event.player) || ServerHandler.isUnclaimedOrRaidable(checkLocation)) return
+        if (MapService.isAdminOverride(event.player) || MapService.isUnclaimedOrRaidable(checkLocation)) return
 
         val owner = LandBoard.getTeam(checkLocation)
 
@@ -241,7 +241,7 @@ object TeamListener : Listener
     fun onBucketFill(event: PlayerBucketFillEvent)
     {
         val checkLocation = event.blockClicked.getRelative(event.blockFace).location
-        if (ServerHandler.isAdminOverride(event.player) || ServerHandler.isUnclaimedOrRaidable(checkLocation)) return
+        if (MapService.isAdminOverride(event.player) || MapService.isUnclaimedOrRaidable(checkLocation)) return
 
         val owner = LandBoard.getTeam(checkLocation)
         if (owner !is PlayerTeam) return

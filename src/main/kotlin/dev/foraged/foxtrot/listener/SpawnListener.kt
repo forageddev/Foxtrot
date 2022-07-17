@@ -1,7 +1,7 @@
 package dev.foraged.foxtrot.listener
 
 import dev.foraged.commons.annotations.Listeners
-import dev.foraged.foxtrot.server.ServerHandler
+import dev.foraged.foxtrot.server.MapService
 import dev.foraged.foxtrot.team.enums.SystemFlag
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.EventUtils
@@ -31,7 +31,7 @@ object SpawnListener : Listener
     @EventHandler(priority = EventPriority.HIGH)
     fun onBlockIgnite(event: BlockIgniteEvent)
     {
-        if (event.player != null) if (ServerHandler.isAdminOverride(event.player)) return
+        if (event.player != null) if (MapService.isAdminOverride(event.player)) return
 
         event.isCancelled = SystemFlag.SAFE_ZONE.appliesAt(event.block.location)
     }
@@ -39,13 +39,13 @@ object SpawnListener : Listener
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onBlockPlace(event: BlockPlaceEvent)
     {
-        if (ServerHandler.isAdminOverride(event.player)) return
+        if (MapService.isAdminOverride(event.player)) return
 
         if (SystemFlag.SAFE_ZONE.appliesAt(event.block.location)) {
             event.isCancelled = true
             event.player.sendMessage(ChatColor.YELLOW.toString() + "You cannot build in spawn!")
-        } else if (ServerHandler.isSpawnBufferZone(event.block.location) || ServerHandler.isNetherBufferZone(event.block.location)) {
-            if (!SystemFlag.SAFE_ZONE.appliesAt(event.block.location) && event.itemInHand != null && event.itemInHand.type == Material.WEB && ServerHandler.KIT_MAP) {
+        } else if (MapService.isSpawnBufferZone(event.block.location) || MapService.isNetherBufferZone(event.block.location)) {
+            if (!SystemFlag.SAFE_ZONE.appliesAt(event.block.location) && event.itemInHand != null && event.itemInHand.type == Material.WEB && MapService.KIT_MAP) {
                 if (!SystemFlag.ALLOW_COBWEBS.appliesAt(event.block.location)) {
                     event.player.sendMessage("${CC.RED}Cobwebs cannot be used in this region.")
                     return
@@ -64,13 +64,13 @@ object SpawnListener : Listener
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onBlockBreak(event: BlockBreakEvent)
     {
-        if (ServerHandler.isAdminOverride(event.player)) return
+        if (MapService.isAdminOverride(event.player)) return
 
         if (SystemFlag.SAFE_ZONE.appliesAt(event.block.location)) {
             event.isCancelled = true
             event.player.sendMessage(ChatColor.YELLOW.toString() + "You cannot build in spawn!")
-        } else if (!SystemFlag.DTC.appliesAt(event.block.location) && (ServerHandler
-                .isSpawnBufferZone(event.block.location) || ServerHandler.isNetherBufferZone(event.block.location)))
+        } else if (!SystemFlag.DTC.appliesAt(event.block.location) && (MapService
+                .isSpawnBufferZone(event.block.location) || MapService.isNetherBufferZone(event.block.location)))
         {
             event.isCancelled = true
             if (event.block.type != Material.LONG_GRASS && event.block.type != Material.GRASS) event.player.sendMessage(ChatColor.YELLOW.toString() + "You cannot build this close to spawn!")
@@ -80,19 +80,19 @@ object SpawnListener : Listener
 
     @EventHandler(priority = EventPriority.HIGH)
     fun onHangingPlace(event: HangingPlaceEvent) {
-        if (ServerHandler.isAdminOverride(event.player)) return
+        if (MapService.isAdminOverride(event.player)) return
         event.isCancelled = SystemFlag.SAFE_ZONE.appliesAt(event.entity.location)
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     fun onHangingBreakByEntity(event: HangingBreakByEntityEvent) {
-        if (event.remover !is Player || ServerHandler.isAdminOverride(event.remover as Player)) return
+        if (event.remover !is Player || MapService.isAdminOverride(event.remover as Player)) return
         event.isCancelled = SystemFlag.SAFE_ZONE.appliesAt(event.entity.location)
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onPlayerInteractEntityEvent(event: PlayerInteractEntityEvent) {
-        if (event.rightClicked.type != EntityType.ITEM_FRAME || ServerHandler.isAdminOverride(event.player)) return
+        if (event.rightClicked.type != EntityType.ITEM_FRAME || MapService.isAdminOverride(event.player)) return
         event.isCancelled = SystemFlag.SAFE_ZONE.appliesAt(event.rightClicked.location)
 
     }
@@ -100,7 +100,7 @@ object SpawnListener : Listener
     // Used for item frames
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onEntityDamageByEntity(event: EntityDamageByEntityEvent) {
-        if (event.entity !is Player || event.entity.type != EntityType.ITEM_FRAME || ServerHandler.isAdminOverride(event.damager as Player)) return
+        if (event.entity !is Player || event.entity.type != EntityType.ITEM_FRAME || MapService.isAdminOverride(event.damager as Player)) return
         event.isCancelled = SystemFlag.SAFE_ZONE.appliesAt(event.entity.location)
     }
 
@@ -133,7 +133,7 @@ object SpawnListener : Listener
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onDrop(event: PlayerDropItemEvent) {
-        if (SystemFlag.SAFE_ZONE.appliesAt(event.player.location) && ServerHandler.KIT_MAP || ServerHandler.SOTW_ACTIVE) {
+        if (SystemFlag.SAFE_ZONE.appliesAt(event.player.location) && MapService.KIT_MAP || MapService.SOTW_ACTIVE) {
             event.itemDrop.remove()
         }
     }

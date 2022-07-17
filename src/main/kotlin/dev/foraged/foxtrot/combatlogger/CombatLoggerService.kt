@@ -3,40 +3,26 @@ package dev.foraged.foxtrot.combatlogger
 import dev.foraged.commons.annotations.Listeners
 import dev.foraged.foxtrot.map.CombatLoggerTrackerPersistMap
 import dev.foraged.foxtrot.map.cooldown.PvPTimerPersistableMap
-import dev.foraged.foxtrot.server.ServerHandler
+import dev.foraged.foxtrot.server.MapService
 import dev.foraged.foxtrot.team.Team
-import dev.foraged.foxtrot.team.TeamHandler
+import dev.foraged.foxtrot.team.TeamService
 import dev.foraged.foxtrot.team.enums.SystemFlag
 import gg.scala.cache.uuid.ScalaStoreUuidCache
-import gg.scala.spigot.ScalaSpigot
-import gg.scala.spigot.preset.KnockbackHandler
+import gg.scala.flavor.service.Service
 import net.evilblock.cubed.entity.EntityHandler
 import net.evilblock.cubed.entity.event.PlayerDamageEntityEvent
-import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.bukkit.EventUtils
 import net.evilblock.cubed.util.bukkit.Tasks
-import net.minecraft.server.v1_8_R3.DamageSource
-import org.bukkit.ChatColor
 import org.bukkit.GameMode
-import org.bukkit.entity.EntityType
-import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
-import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
-import org.bukkit.event.entity.EntityDamageByEntityEvent
-import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.event.world.ChunkLoadEvent
-import org.bukkit.event.world.ChunkUnloadEvent
-import org.bukkit.util.Vector
-import java.util.*
-import kotlin.math.log
 
+@Service
 @Listeners
-object CombatLoggerHandler : Listener
+object CombatLoggerService : Listener
 {
     val loggers = mutableMapOf<CombatLogger, Long>()
 
@@ -57,7 +43,7 @@ object CombatLoggerHandler : Listener
         val player = event.player
         if (player.hasMetadata("logoutSafe")) return
         if (player.gameMode == GameMode.CREATIVE) return
-        if (ServerHandler.SOTW_ACTIVE) return
+        if (MapService.SOTW_ACTIVE) return
         if (PvPTimerPersistableMap.isOnCooldown(player.uniqueId)) return
 
         if (SystemFlag.SAFE_ZONE.appliesAt(player.location)) return
@@ -121,7 +107,7 @@ object CombatLoggerHandler : Listener
         val damager = event.player
         val logger = getByEntity(event.entity.id)
         if (logger is CombatLogger) {
-            val team = TeamHandler.findTeamByPlayer(logger.uniqueId)
+            val team = TeamService.findTeamByPlayer(logger.uniqueId)
 
             if (team != null)
             {

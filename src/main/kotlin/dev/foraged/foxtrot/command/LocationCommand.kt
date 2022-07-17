@@ -5,7 +5,7 @@ import dev.foraged.commons.acf.annotation.Default
 import dev.foraged.commons.acf.annotation.Description
 import dev.foraged.commons.annotations.commands.AutoRegister
 import dev.foraged.commons.command.GoodCommand
-import dev.foraged.foxtrot.server.ServerHandler
+import dev.foraged.foxtrot.server.MapService
 import dev.foraged.foxtrot.team.claim.LandBoard
 import net.evilblock.cubed.util.CC
 import org.bukkit.entity.Player
@@ -25,7 +25,7 @@ object LocationCommand : GoodCommand()
             return
         }
 
-        if (!ServerHandler.isWarzone(loc)) sender.sendMessage("${CC.YELLOW}You are in ${CC.GRAY}The Wilderness${CC.YELLOW}.")
+        if (!MapService.isWarzone(loc)) sender.sendMessage("${CC.YELLOW}You are in ${CC.GRAY}The Wilderness${CC.YELLOW}.")
         else sender.sendMessage("${CC.YELLOW}You are in the ${CC.RED}Warzone${CC.YELLOW}.")
     }
 }

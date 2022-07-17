@@ -3,11 +3,11 @@ package dev.foraged.foxtrot.classes.impl
 import dev.foraged.commons.annotations.Listeners
 import dev.foraged.foxtrot.FoxtrotExtendedPlugin
 import dev.foraged.foxtrot.classes.PvPClass
-import dev.foraged.foxtrot.classes.PvPClassHandler
+import dev.foraged.foxtrot.classes.PvPClassService
 import dev.foraged.foxtrot.map.cooldown.nopersist.SpawnTagMap
 import dev.foraged.foxtrot.map.cooldown.nopersist.pvpclass.ArcherJumpMap
 import dev.foraged.foxtrot.map.cooldown.nopersist.pvpclass.ArcherSpeedMap
-import dev.foraged.foxtrot.team.TeamHandler
+import dev.foraged.foxtrot.team.TeamService
 import dev.foraged.foxtrot.team.enums.SystemFlag
 import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
@@ -68,7 +68,7 @@ object ArcherClass : PvPClass("Archer", 15, listOf(Material.SUGAR, Material.FEAT
 
             val shooter = arrow.shooter as Player
             val pullback = arrow.getMetadata("Pullback")[0].asFloat()
-            if (!PvPClassHandler.hasKitOn(shooter, this)) return
+            if (!PvPClassService.hasKitOn(shooter, this)) return
 
 
             // 2 hearts for a marked shot
@@ -89,7 +89,7 @@ object ArcherClass : PvPClass("Archer", 15, listOf(Material.SUGAR, Material.FEAT
                 ArrowDamageByPlayer(victim.name, damage, (arrow.shooter as Player).name, shotFrom, distance)
             )*/
             victim.health = Math.max(0.0, victim.health - damage)
-            if (PvPClassHandler.hasKitOn(victim, this)) {
+            if (PvPClassService.hasKitOn(victim, this)) {
                 shooter.sendMessage(
                     "${CC.YELLOW}[${CC.BLUE}Arrow Range${CC.YELLOW} (${CC.RED}${distance.toInt()}${CC.YELLOW})] ${CC.RED}Cannot mark other Archers. " +
                             "${CC.B_BLUE}(" + damage / 2 + " ${CC.B_RED}${Constants.HEART_SYMBOL}${CC.B_BLUE}" + (if (damage / 2 == 1) "" else "s") + ")"
@@ -114,7 +114,7 @@ object ArcherClass : PvPClass("Archer", 15, listOf(Material.SUGAR, Material.FEAT
                 }
                 if (invis != null)
                 {
-                    val playerClass = PvPClassHandler.getPvPClass(victim)
+                    val playerClass = PvPClassService.getPvPClass(victim)
                     victim.removePotionEffect(invis.type)
                     val invisFinal: PotionEffect = invis
 
@@ -225,11 +225,11 @@ object ArcherClass : PvPClass("Archer", 15, listOf(Material.SUGAR, Material.FEAT
     }
 
     private fun canUseMark(player: Player, victim: Player): Boolean {
-        if (TeamHandler.findTeamByPlayer(player.uniqueId) != null) {
-            val team = TeamHandler.findTeamByPlayer(player.uniqueId)!!
+        if (TeamService.findTeamByPlayer(player.uniqueId) != null) {
+            val team = TeamService.findTeamByPlayer(player.uniqueId)!!
             var amount = 0
             for (member: Player in team.onlineMembers) {
-                if (PvPClassHandler.hasKitOn(member, this)) {
+                if (PvPClassService.hasKitOn(member, this)) {
                     amount++
                     if (amount > 3) break
                 }

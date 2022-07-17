@@ -2,6 +2,7 @@ package dev.foraged.foxtrot.enchant
 
 import dev.foraged.commons.annotations.Listeners
 import dev.foraged.foxtrot.enchant.impl.*
+import gg.scala.flavor.service.Service
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import org.bukkit.ChatColor
@@ -13,8 +14,9 @@ import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
 
+@Service
 @Listeners
-object EnchantHandler : Listener
+object EnchantService : Listener
 {
     private val enchants = mutableMapOf<String, Enchant>()
 

@@ -3,7 +3,7 @@ package dev.foraged.foxtrot.listener
 import com.cryptomorin.xseries.XMaterial
 import dev.foraged.commons.annotations.Listeners
 import dev.foraged.foxtrot.event.CrowbarSpawnerBreakEvent
-import dev.foraged.foxtrot.server.ServerHandler
+import dev.foraged.foxtrot.server.MapService
 import dev.foraged.foxtrot.team.claim.LandBoard
 import dev.foraged.foxtrot.team.enums.SystemFlag
 import dev.foraged.foxtrot.team.impl.PlayerTeam
@@ -38,7 +38,7 @@ object CrowbarListener : Listener
     {
         if (event.item == null || !isCrowbar(event.item) || !(event.action == Action.LEFT_CLICK_BLOCK || event.action == Action.RIGHT_CLICK_BLOCK)) return
 
-        if (!ServerHandler.isUnclaimedOrRaidable(event.clickedBlock.location) && !ServerHandler.isAdminOverride(event.player))
+        if (!MapService.isUnclaimedOrRaidable(event.clickedBlock.location) && !MapService.isAdminOverride(event.player))
         {
             val team = LandBoard.getTeam(event.clickedBlock.location)
             if (team != null && (team is PlayerTeam && !team.isMember(event.player.uniqueId)) || team is SystemTeam)
@@ -160,7 +160,7 @@ object CrowbarListener : Listener
 
     @EventHandler
     fun onBreak(event: BlockBreakEvent) {
-        if (ServerHandler.isAdminOverride(event.player)) return
+        if (MapService.isAdminOverride(event.player)) return
         if (event.player.world.environment == World.Environment.NETHER && event.block.type == Material.MOB_SPAWNER) {
             event.player.sendMessage(ChatColor.RED.toString() + "You cannot break spawners in this dimension!")
             event.isCancelled = true

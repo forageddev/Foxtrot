@@ -3,7 +3,7 @@ package dev.foraged.foxtrot.listener
 import dev.foraged.commons.annotations.Listeners
 import dev.foraged.foxtrot.map.cooldown.PvPTimerPersistableMap
 import dev.foraged.foxtrot.region.RegionData
-import dev.foraged.foxtrot.server.ServerHandler
+import dev.foraged.foxtrot.server.MapService
 import dev.foraged.foxtrot.team.claim.LandBoard
 import dev.foraged.foxtrot.team.enums.SystemFlag
 import dev.foraged.foxtrot.team.impl.PlayerTeam
@@ -72,8 +72,8 @@ object TraverseListener : Listener
         val ownerFrom = LandBoard.getTeam(event.from)
         if (ownerFrom !== ownerTo)
         {
-            val from: RegionData = ServerHandler.getRegion(ownerFrom, event.from)
-            val to: RegionData = ServerHandler.getRegion(ownerTo, event.to)
+            val from: RegionData = MapService.getRegion(ownerFrom, event.from)
+            val to: RegionData = MapService.getRegion(ownerTo, event.to)
             if (from == to) return
             if (!to.regionType.moveHandler.handleMove(event))
             {

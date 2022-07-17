@@ -5,9 +5,9 @@ import dev.foraged.commons.annotations.Listeners
 import dev.foraged.foxtrot.listener.CrowbarListener
 import dev.foraged.foxtrot.map.BalancePersistMap
 import dev.foraged.foxtrot.team.enums.SystemFlag
+import gg.scala.flavor.service.Service
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
-import net.evilblock.cubed.util.bukkit.ItemUtils
 import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.ChatColor
 import org.bukkit.Material
@@ -18,11 +18,11 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
-import java.util.IllegalFormatCodePointException
 import kotlin.math.floor
 
+@Service
 @Listeners
-object ShopHandler : Listener
+object ShopService : Listener
 {
     fun findShopByBlock(block: Block) : Shop? {
         if (block.state is Sign) {

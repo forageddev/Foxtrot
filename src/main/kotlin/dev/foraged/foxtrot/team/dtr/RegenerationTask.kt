@@ -2,14 +2,11 @@ package dev.foraged.foxtrot.team.dtr
 
 import dev.foraged.commons.annotations.runnables.Repeating
 import dev.foraged.foxtrot.FoxtrotExtendedPlugin
-import dev.foraged.foxtrot.team.TeamHandler
+import dev.foraged.foxtrot.team.TeamService
 import dev.foraged.foxtrot.team.impl.PlayerTeam
 import net.evilblock.cubed.util.CC
-import org.bson.types.ObjectId
 import org.bukkit.Bukkit
-import org.bukkit.ChatColor
 import java.util.UUID
-import java.util.function.BiConsumer
 
 @Repeating(20L)
 class RegenerationTask : Runnable {
@@ -69,7 +66,7 @@ class RegenerationTask : Runnable {
         {
             if (player.hasMetadata("invisible")) continue
 
-            val playerTeam = TeamHandler.findTeamByPlayer(player.uniqueId)
+            val playerTeam = TeamService.findTeamByPlayer(player.uniqueId)
             if (playerTeam != null) playerOnlineMap[playerTeam] = playerOnlineMap.getOrDefault(playerTeam, 0) + 1
 
         }

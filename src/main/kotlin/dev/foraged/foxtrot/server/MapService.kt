@@ -7,6 +7,7 @@ import dev.foraged.foxtrot.team.claim.LandBoard
 import dev.foraged.foxtrot.team.enums.SystemFlag
 import dev.foraged.foxtrot.team.impl.PlayerTeam
 import dev.foraged.foxtrot.team.impl.SystemTeam
+import gg.scala.flavor.service.Service
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.Location
@@ -16,7 +17,8 @@ import org.bukkit.util.Vector
 import java.util.*
 import kotlin.math.abs
 
-object ServerHandler
+@Service
+object MapService
 {
     const val NORMAL_BUFFER = 300
     const val NETHER_BUFFER = 300

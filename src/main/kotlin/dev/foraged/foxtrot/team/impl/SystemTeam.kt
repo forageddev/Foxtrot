@@ -1,7 +1,7 @@
 package dev.foraged.foxtrot.team.impl
 
 import dev.foraged.foxtrot.team.Team
-import dev.foraged.foxtrot.team.TeamHandler
+import dev.foraged.foxtrot.team.TeamService
 import dev.foraged.foxtrot.team.enums.SystemFlag
 import gg.scala.store.storage.type.DataStoreStorageType
 import net.evilblock.cubed.util.CC
@@ -18,12 +18,12 @@ class SystemTeam(identifier: UUID, name: String) : Team(identifier, name)
 
     override fun saveEntry()
     {
-        TeamHandler.systemTeamController.save(this)
+        TeamService.systemTeamController.save(this)
     }
 
     override fun deleteEntry()
     {
-        TeamHandler.systemTeamController.delete(identifier, DataStoreStorageType.ALL)
+        TeamService.systemTeamController.delete(identifier, DataStoreStorageType.ALL)
     }
 
     override fun getName(player: Player): String

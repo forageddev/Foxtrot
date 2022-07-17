@@ -11,10 +11,10 @@ import dev.foraged.foxtrot.event.team.TeamCreateEvent
 import dev.foraged.foxtrot.map.BalancePersistMap
 import dev.foraged.foxtrot.map.cooldown.nopersist.TeamHomeMap
 import dev.foraged.foxtrot.map.cooldown.nopersist.TeamStuckMap
-import dev.foraged.foxtrot.server.ServerHandler
+import dev.foraged.foxtrot.server.MapService
 import dev.foraged.foxtrot.team.Team
-import dev.foraged.foxtrot.team.TeamHandler
-import dev.foraged.foxtrot.team.claim.ClaimHandler
+import dev.foraged.foxtrot.team.TeamService
+import dev.foraged.foxtrot.team.claim.ClaimService
 import dev.foraged.foxtrot.team.claim.LandBoard
 import dev.foraged.foxtrot.team.claim.VisualClaim
 import dev.foraged.foxtrot.team.claim.VisualClaimType
@@ -35,7 +35,6 @@ import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.text.TextUtil
 import net.md_5.bungee.api.chat.ClickEvent
 import org.bukkit.Bukkit
-import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import java.util.*
 
@@ -54,22 +53,22 @@ object TeamCommand : GoodCommand()
     fun customizer(manager: CommandManager) {
         manager.commandContexts.registerContext(Team::class.java) {
             val arg = it.popFirstArg()
-            if (arg.equals("self", ignoreCase = true)) return@registerContext TeamHandler.findTeamByPlayer((it.sender as Player).uniqueId)
+            if (arg.equals("self", ignoreCase = true)) return@registerContext TeamService.findTeamByPlayer((it.sender as Player).uniqueId)
                 ?: throw ConditionFailedException("You are not currently in a team. Please create a new team using /team create <name>")
-            return@registerContext TeamHandler.findTeamByName(arg) ?: throw ConditionFailedException("Team with name or member $arg not found.")
+            return@registerContext TeamService.findTeamByName(arg) ?: throw ConditionFailedException("Team with name or member $arg not found.")
         }
     }
 
     @Subcommand("create")
     @Description("Create a new team")
     fun create(player: Player, @Single @Conditions("validate:min=3,max=16,regex=[^a-zA-Z0-9]") name: String) {
-        if (TeamHandler.findTeamByName(name) != null) throw ConditionFailedException("Another team with the name $name already exists. Please choose a new name for your team.")
-        if (TeamHandler.findTeamByPlayer(player.uniqueId) != null) throw ConditionFailedException("You are already in another team. Please leave your existing team before attempting to perform this command again.")
+        if (TeamService.findTeamByName(name) != null) throw ConditionFailedException("Another team with the name $name already exists. Please choose a new name for your team.")
+        if (TeamService.findTeamByPlayer(player.uniqueId) != null) throw ConditionFailedException("You are already in another team. Please leave your existing team before attempting to perform this command again.")
 
         val team = PlayerTeam(UUID.randomUUID(), name, TeamMember(player.uniqueId, player.name, TeamMemberRole.LEADER))
         if (!TeamCreateEvent(team).call()) throw ConditionFailedException("Your team creation was cancelled.")
 
-        TeamHandler.registerTeam(team)
+        TeamService.registerTeam(team)
         Bukkit.broadcastMessage("${Team.CHAT_PREFIX}${CC.PRI}$name${CC.SEC} has been ${CC.GREEN}opened${CC.SEC} by ${CC.PRI}${player.displayName}")
     }
 
@@ -77,7 +76,7 @@ object TeamCommand : GoodCommand()
     @CommandPermission("foxtrot.team.management")
     @Description("Create a new system team")
     fun createSystem(player: Player, name: String) {
-        TeamHandler.registerTeam(SystemTeam(UUID.randomUUID(), name))
+        TeamService.registerTeam(SystemTeam(UUID.randomUUID(), name))
         player.sendMessage("${CC.SEC}Created system team with name ${CC.PRI}${name}${CC.SEC}.")
     }
 
@@ -245,7 +244,7 @@ object TeamCommand : GoodCommand()
     fun disband(player: Player, @Default("self") team: Team) {
         if ((team is PlayerTeam && team.leader.uniqueId != player.uniqueId) && !player.hasPermission("foxtrot.team.management")) throw ConditionFailedException("You are not the leader of ${team.name} so you cannot disband it.")
 
-        TeamHandler.unregisterTeam(team)
+        TeamService.unregisterTeam(team)
         Bukkit.broadcastMessage("${Team.CHAT_PREFIX}${CC.PRI}${team.name}${CC.SEC} has been ${CC.RED}disbanded${CC.SEC} by ${CC.PRI}${player.displayName}")
     }
 
@@ -396,7 +395,7 @@ object TeamCommand : GoodCommand()
     @Description("Obtain a claiming wand to create land")
     fun claim(player: Player, @Default("self") team: Team) {
         //TOO: ADD kitmap check
-        if (team !is SystemTeam && ServerHandler.isWarzone(player.location)) throw ConditionFailedException("You are currently in the Warzone and can't claim land here. The Warzone ends at ${ServerHandler.WARZONE_RADIUS}.")
+        if (team !is SystemTeam && MapService.isWarzone(player.location)) throw ConditionFailedException("You are currently in the Warzone and can't claim land here. The Warzone ends at ${MapService.WARZONE_RADIUS}.")
         if (team is SystemTeam && !player.hasPermission("foxtrot.team.management")) throw ConditionFailedException("You are not allowed to claim land for system teams.")
         if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.CLAIM_LAND)) throw ConditionFailedException("You are not allowed to claim land for ${team.name}.")
 
@@ -419,7 +418,7 @@ object TeamCommand : GoodCommand()
         if (!VisualClaim.currentMaps.containsKey(player.name)) VisualClaim(player, VisualClaimType.MAP, team is SystemTeam).draw(true)
         player.sendMessage("${CC.SEC}Gave you a claim wand.")
         if (team is SystemTeam) {
-            ClaimHandler[player.uniqueId] = team
+            ClaimService[player.uniqueId] = team
             player.sendMessage("${CC.RED}WARNING! YOUR LAND WILL BE CLAIMED FOR THE SYSTEM TEAM ${team.name}")
         }
 
