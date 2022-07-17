@@ -2,7 +2,6 @@ package dev.foraged.foxtrot.enchant.impl
 
 import dev.foraged.commons.annotations.Listeners
 import dev.foraged.foxtrot.enchant.Enchant
-import net.evilblock.cubed.util.bukkit.ItemUtils
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack

@@ -1,26 +1,19 @@
 package dev.foraged.foxtrot.ability.impl
 
 import dev.foraged.commons.annotations.Listeners
-import dev.foraged.foxtrot.FoxtrotExtendedPlugin
 import dev.foraged.foxtrot.ability.Ability
-import dev.foraged.foxtrot.command.StartOfTheWorldCommand
 import dev.foraged.foxtrot.map.cooldown.PvPTimerPersistableMap
 import dev.foraged.foxtrot.map.cooldown.nopersist.AbilityCooldownMap
 import dev.foraged.foxtrot.team.enums.SystemFlag
 import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.bukkit.EventUtils
 import net.evilblock.cubed.util.time.TimeUtil
 import org.bukkit.ChatColor
 import org.bukkit.Material
-import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.entity.Snowball
 import org.bukkit.event.EventHandler
 import org.bukkit.event.entity.EntityDamageByEntityEvent
-import org.bukkit.event.entity.ProjectileLaunchEvent
 import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.metadata.FixedMetadataValue
-import java.util.UUID
 
 @Listeners
 object SwitcherAbility : Ability("switcher", "Switcher", ChatColor.AQUA, Material.SNOW_BALL, listOf(

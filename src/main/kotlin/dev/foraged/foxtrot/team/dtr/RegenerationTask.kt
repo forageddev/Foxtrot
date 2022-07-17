@@ -6,7 +6,7 @@ import dev.foraged.foxtrot.team.TeamService
 import dev.foraged.foxtrot.team.impl.PlayerTeam
 import net.evilblock.cubed.util.CC
 import org.bukkit.Bukkit
-import java.util.UUID
+import java.util.*
 
 @Repeating(20L)
 class RegenerationTask : Runnable {

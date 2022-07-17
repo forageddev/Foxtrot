@@ -1,18 +1,12 @@
 package dev.foraged.foxtrot.command
 
 import dev.foraged.commons.acf.ConditionFailedException
-import dev.foraged.commons.acf.annotation.CommandAlias
-import dev.foraged.commons.acf.annotation.CommandPermission
-import dev.foraged.commons.acf.annotation.Default
-import dev.foraged.commons.acf.annotation.Description
-import dev.foraged.commons.acf.annotation.Subcommand
+import dev.foraged.commons.acf.annotation.*
 import dev.foraged.commons.annotations.commands.AutoRegister
 import dev.foraged.commons.command.GoodCommand
-import dev.foraged.foxtrot.map.LivesPersistMap
 import dev.foraged.foxtrot.map.cooldown.PvPTimerPersistableMap
 import gg.scala.cache.uuid.ScalaStoreUuidCache
 import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.time.Duration
 import net.evilblock.cubed.util.time.TimeUtil
 import org.bukkit.entity.Player

@@ -5,7 +5,6 @@ import dev.foraged.foxtrot.team.claim.LandBoard
 import dev.foraged.foxtrot.team.enums.SystemFlag
 import net.evilblock.cubed.util.CC
 import org.bukkit.Bukkit
-import org.bukkit.ChatColor
 import org.bukkit.World
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener

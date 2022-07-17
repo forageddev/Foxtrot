@@ -3,7 +3,6 @@ package dev.foraged.foxtrot.map.cooldown.nopersist
 import dev.foraged.commons.annotations.Listeners
 import dev.foraged.commons.persist.CooldownMap
 import dev.foraged.commons.persist.RegisterMap
-import dev.foraged.foxtrot.map.cooldown.OpplePersistableMap
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.time.TimeUtil
 import org.bukkit.Material

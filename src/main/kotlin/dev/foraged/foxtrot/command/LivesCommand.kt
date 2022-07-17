@@ -11,7 +11,7 @@ import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.text.TextUtil
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import java.util.UUID
+import java.util.*
 
 @AutoRegister
 @CommandAlias("lives|life")
