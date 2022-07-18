@@ -1,17 +1,21 @@
 package dev.foraged.foxtrot
 
 import dev.foraged.commons.ExtendedPaperPlugin
+import dev.foraged.commons.annotations.container.ContainerDisable
 import dev.foraged.commons.annotations.container.ContainerEnable
 import dev.foraged.commons.annotations.container.flavor.LazyStartup
 import dev.foraged.commons.persist.impl.IntegerPersistMap
+import dev.foraged.enchants.enchant.EnchantService
+import dev.foraged.foxtrot.enchant.LifeStealerEnchant
 import dev.foraged.foxtrot.map.cooldown.OpplePersistableMap
 import dev.foraged.foxtrot.map.cooldown.PvPTimerPersistableMap
 import dev.foraged.foxtrot.map.cooldown.nopersist.EnderpearlMap
 import dev.foraged.foxtrot.map.cooldown.nopersist.SpawnTagMap
-import dev.foraged.foxtrot.map.cooldown.nopersist.pvpclass.ArcherJumpMap
-import dev.foraged.foxtrot.map.cooldown.nopersist.pvpclass.ArcherSpeedMap
+import dev.foraged.foxtrot.map.cooldown.nopersist.pvpclass.archer.ArcherJumpMap
+import dev.foraged.foxtrot.map.cooldown.nopersist.pvpclass.archer.ArcherSpeedMap
 import dev.foraged.foxtrot.map.ore.impl.*
 import dev.foraged.foxtrot.map.stats.*
+import dev.foraged.foxtrot.team.TeamService
 import dev.foraged.foxtrot.ui.FoxtrotNametagProvider
 import dev.foraged.foxtrot.ui.FoxtrotScoreboardProvider
 import me.lucko.helper.plugin.ap.Plugin
@@ -25,7 +29,8 @@ import net.evilblock.cubed.scoreboard.ScoreboardHandler
     authors = ["Foraged"],
     depends = [
         PluginDependency("LunarClient-API"),
-        PluginDependency("Commons")
+        PluginDependency("Commons"),
+        PluginDependency("Enchants")
     ]
 )
 @LazyStartup
@@ -76,5 +81,11 @@ class FoxtrotExtendedPlugin : ExtendedPaperPlugin()
 
         NametagHandler.registerProvider(FoxtrotNametagProvider)
         ScoreboardHandler.configure(FoxtrotScoreboardProvider)
+        EnchantService.registerEnchant(LifeStealerEnchant)
+    }
+
+    @ContainerDisable
+    fun close() {
+        TeamService.close()
     }
 }

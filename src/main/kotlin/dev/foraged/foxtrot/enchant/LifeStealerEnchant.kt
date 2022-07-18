@@ -1,7 +1,8 @@
-package dev.foraged.foxtrot.enchant.impl
+package dev.foraged.foxtrot.enchant
 
 import dev.foraged.commons.annotations.Listeners
-import dev.foraged.foxtrot.enchant.Enchant
+import dev.foraged.enchants.enchant.Enchant
+import dev.foraged.foxtrot.map.LivesPersistMap
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemUtils
 import net.evilblock.cubed.util.math.Chance
@@ -38,8 +39,14 @@ object LifeStealerEnchant : Enchant("lifestealer", "Life Stealer", ChatColor.RED
         if (getEnchantLevel(player.itemInHand) == -1) return
 
         if (shouldSteal(getEnchantLevel(player.itemInHand))) {
-
-            player.sendMessage("${CC.B_RED}LIFESTEALER! ${CC.YELLOW}You have stolen ${CC.RED}1${CC.YELLOW} life from ${event.entity.displayName}")
+            if (LivesPersistMap[event.entity.uniqueId] != 0)
+            {
+                LivesPersistMap.minus(event.entity.uniqueId, 1)
+                LivesPersistMap.plus(player.uniqueId, 1)
+                player.sendMessage("${CC.B_RED}LIFESTEALER! ${CC.YELLOW}You have stolen ${CC.RED}1${CC.YELLOW} life from ${event.entity.displayName}")
+            } else {
+                player.sendMessage("${CC.B_RED}LIFESTEALER! ${CC.YELLOW}${event.entity.displayName} had no lives to steal!")
+            }
         }
     }
 }

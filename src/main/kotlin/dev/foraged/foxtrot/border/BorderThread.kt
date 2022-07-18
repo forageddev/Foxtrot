@@ -1,5 +1,6 @@
 package dev.foraged.foxtrot.border
 
+import dev.foraged.commons.persist.PluginService
 import dev.foraged.foxtrot.map.cooldown.PvPTimerPersistableMap
 import dev.foraged.foxtrot.map.cooldown.nopersist.SpawnTagMap
 import dev.foraged.foxtrot.team.claim.Claim
@@ -16,7 +17,7 @@ import org.bukkit.entity.Player
 import java.util.*
 
 @Service
-object BorderThread : Thread("Foxtrot - Border Thread") {
+object BorderThread : Thread("Foxtrot - Border Thread"), PluginService {
 
     val REGION_DISTANCE = 8
     val REGION_DISTANCE_SQUARED = REGION_DISTANCE * REGION_DISTANCE
@@ -24,7 +25,7 @@ object BorderThread : Thread("Foxtrot - Border Thread") {
     private val sentBlockChanges: MutableMap<String, MutableMap<Location, Long>> = HashMap()
 
     @Configure
-    fun configure() {
+    override fun configure() {
         start()
     }
 

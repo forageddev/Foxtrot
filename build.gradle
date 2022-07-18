@@ -18,6 +18,7 @@ dependencies {
     compileOnly "com.lunarclient:bukkitapi:1.0-SNAPSHOT"
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
+    compileOnly "dev.foraged:enchants:1.2.5"
     compileOnly "gg.scala.aware:aware:1.0.8.2"
 
     kapt "me.lucko:helper:5.6.10.2"

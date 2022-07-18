@@ -5,8 +5,8 @@ import dev.foraged.foxtrot.FoxtrotExtendedPlugin
 import dev.foraged.foxtrot.classes.PvPClass
 import dev.foraged.foxtrot.classes.PvPClassService
 import dev.foraged.foxtrot.map.cooldown.nopersist.SpawnTagMap
-import dev.foraged.foxtrot.map.cooldown.nopersist.pvpclass.ArcherJumpMap
-import dev.foraged.foxtrot.map.cooldown.nopersist.pvpclass.ArcherSpeedMap
+import dev.foraged.foxtrot.map.cooldown.nopersist.pvpclass.archer.ArcherJumpMap
+import dev.foraged.foxtrot.map.cooldown.nopersist.pvpclass.archer.ArcherSpeedMap
 import dev.foraged.foxtrot.team.TeamService
 import dev.foraged.foxtrot.team.enums.SystemFlag
 import net.evilblock.cubed.nametag.NametagHandler
@@ -210,7 +210,7 @@ object ArcherClass : PvPClass("Archer", 15, listOf(Material.SUGAR, Material.FEAT
             }
 
             ArcherJumpMap.startCooldown(player.uniqueId)
-            player.addPotionEffect(PotionEffect(PotionEffectType.JUMP, 20 * 5, 4))
+            player.addPotionEffect(PotionEffect(PotionEffectType.JUMP, 20 * 5, 6))
             SpawnTagMap.startCooldown(player.uniqueId)
             return (false)
         }

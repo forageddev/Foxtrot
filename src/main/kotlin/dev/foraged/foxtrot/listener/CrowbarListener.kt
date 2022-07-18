@@ -28,10 +28,12 @@ object CrowbarListener : Listener
     val CROWBAR_PORTALS = 6
     val CROWBAR_SPAWNERS = 1
 
-    fun isCrowbar(item: ItemStack) : Boolean { return item.isSimilar(ItemBuilder(XMaterial.IRON_AXE).name(CROWBAR_NAME).build()) }
+    fun isCrowbar(item: ItemStack) : Boolean {
+        return item.type == Material.IRON_AXE && item.itemMeta != null && item.itemMeta.hasDisplayName() && item.itemMeta.displayName == CROWBAR_NAME && item.itemMeta.hasLore() && item.itemMeta.lore.size == getCrowbarDescription(0, 0).size
+    }
     fun getCrowbarDescription(portals: Int, spawners: Int) : List<String> { return listOf("", "${CC.YELLOW}Can Break:", "${CC.YELLOW} - ${CC.BLUE}Portal Frames: ${CC.YELLOW}$portals", "${CC.YELLOW} - ${CC.BLUE}Spawners: ${CC.YELLOW}$spawners") }
-    fun getCrowbarUsesPortal(item: ItemStack): Int { return ItemUtils.getLoreData(item, 2)?.toInt() ?: 0 }
-    fun getCrowbarUsesSpawner(item: ItemStack): Int { return ItemUtils.getLoreData(item, 3)?.toInt() ?: 0 }
+    fun getCrowbarUsesPortal(item: ItemStack): Int { return ItemUtils.getLoreData(item, 2)?.split(": ")?.get(1)?.toInt() ?: 0 }
+    fun getCrowbarUsesSpawner(item: ItemStack): Int { return ItemUtils.getLoreData(item, 3)?.split(": ")?.get(1)?.toInt() ?: 0 }
 
     @EventHandler(ignoreCancelled = true)
     fun onPlayerInteract(event: PlayerInteractEvent)

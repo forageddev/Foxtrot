@@ -1,5 +1,7 @@
 package dev.foraged.foxtrot.team
 
+import dev.foraged.commons.annotations.Listeners
+import dev.foraged.commons.persist.PluginService
 import dev.foraged.foxtrot.FoxtrotExtendedPlugin
 import dev.foraged.foxtrot.team.claim.LandBoard
 import dev.foraged.foxtrot.team.impl.PlayerTeam
@@ -10,10 +12,11 @@ import gg.scala.flavor.service.Service
 import gg.scala.store.controller.DataStoreObjectController
 import gg.scala.store.controller.DataStoreObjectControllerCache
 import gg.scala.store.storage.type.DataStoreStorageType
+import org.bukkit.event.Listener
 import java.util.*
 
 @Service
-object TeamService
+object TeamService : PluginService
 {
     val teams = mutableSetOf<Team>()
     val playerTeamController: DataStoreObjectController<PlayerTeam> = DataStoreObjectControllerCache.create()
@@ -49,7 +52,7 @@ object TeamService
     }
 
     @Configure
-    fun configure()
+    override fun configure()
     {
         FoxtrotExtendedPlugin.instance.logger.info("[Team] Loading all teams from MongoDB")
         systemTeamController.loadAll(DataStoreStorageType.MONGO).thenAccept {
@@ -65,7 +68,6 @@ object TeamService
         }
     }
 
-    @Close
     fun close()
     {
         FoxtrotExtendedPlugin.instance.logger.info("[Team] Saving ${teams.size} to MongoDB")

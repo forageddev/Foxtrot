@@ -1,4 +1,4 @@
-package dev.foraged.foxtrot.map.cooldown.nopersist.pvpclass
+package dev.foraged.foxtrot.map.cooldown.nopersist.pvpclass.archer
 
 import dev.foraged.commons.persist.CooldownMap
 

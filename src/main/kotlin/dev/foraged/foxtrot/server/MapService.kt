@@ -1,5 +1,6 @@
 package dev.foraged.foxtrot.server
 
+import dev.foraged.commons.persist.PluginService
 import dev.foraged.foxtrot.region.RegionData
 import dev.foraged.foxtrot.region.RegionType
 import dev.foraged.foxtrot.team.Team
@@ -18,7 +19,7 @@ import java.util.*
 import kotlin.math.abs
 
 @Service
-object MapService
+object MapService : PluginService
 {
     const val NORMAL_BUFFER = 300
     const val NETHER_BUFFER = 300
@@ -91,5 +92,10 @@ object MapService
         val x = loc.blockX
         val z = loc.blockZ
         return x < radius && x > -radius && z < radius && z > -radius
+    }
+
+    override fun configure()
+    {
+        // todo implmeent config for these values loaded here
     }
 }

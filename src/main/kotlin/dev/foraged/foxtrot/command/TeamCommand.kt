@@ -155,6 +155,8 @@ object TeamCommand : GoodCommand()
     @Subcommand("join")
     @Description("Join a team you were invited to")
     fun join(player: Player, team: Team) {
+        if (TeamService.findTeamByPlayer(player.uniqueId) != null) throw ConditionFailedException("Leave your current team before attempting to join another team.")
+
         if (team is SystemTeam) throw ConditionFailedException("You cannot join teams that are managed by the server.")
         if (team is PlayerTeam)
         {
@@ -192,6 +194,7 @@ object TeamCommand : GoodCommand()
         if (team is SystemTeam) throw ConditionFailedException("You cannot leave system teams.")
         if (team is PlayerTeam)
         {
+            if (team.leader.uniqueId == player.uniqueId) throw ConditionFailedException("You cannot leave your team as you are the leader. Please try using /team disband instead.")
             val teamAt = LandBoard.getTeam(player.location)
             if (!team.isMember(player.uniqueId)) throw ConditionFailedException("You are not in the team ${team.name}.")
             if (teamAt != null && teamAt == team) throw ConditionFailedException("You cannot leave a team whilst you remain on their territory.")

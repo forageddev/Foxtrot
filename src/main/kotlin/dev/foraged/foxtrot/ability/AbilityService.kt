@@ -1,11 +1,14 @@
 package dev.foraged.foxtrot.ability
 
+import dev.foraged.commons.persist.PluginService
 import dev.foraged.foxtrot.ability.impl.SwitcherAbility
+import gg.scala.flavor.service.Configure
 
-object AbilityService {
+object AbilityService : PluginService {
     private val abilities = mutableMapOf<String, Ability>()
 
-    init {
+    @Configure
+    override fun configure() {
         registerAbility(SwitcherAbility)
     }
 

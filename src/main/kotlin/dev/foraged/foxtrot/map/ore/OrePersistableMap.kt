@@ -2,6 +2,7 @@ package dev.foraged.foxtrot.map.ore
 
 import dev.foraged.commons.persist.impl.IntegerPersistMap
 import dev.foraged.foxtrot.FoxtrotExtendedPlugin
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.event.EventHandler
@@ -16,7 +17,7 @@ abstract class OrePersistableMap(
     mongoName: String,
     private val color: String,
     vararg val types: Material
-) : IntegerPersistMap(keyPrefix, mongoName, true), Listener
+) : IntegerPersistMap(keyPrefix, mongoName, true, Bukkit.getServerName()), Listener
 {
     val displayName: String get() {
         return color + mongoName.split(".")[1]

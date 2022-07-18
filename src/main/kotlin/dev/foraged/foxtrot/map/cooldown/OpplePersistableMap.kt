@@ -5,6 +5,7 @@ import dev.foraged.commons.persist.RegisterMap
 import dev.foraged.commons.persist.impl.CooldownPersistMap
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.time.TimeUtil
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -12,7 +13,7 @@ import org.bukkit.event.player.PlayerItemConsumeEvent
 
 @RegisterMap
 @Listeners
-object OpplePersistableMap : CooldownPersistMap("OppleCooldowns", "OppleCooldown", true), Listener {
+object OpplePersistableMap : CooldownPersistMap("OppleCooldowns", "OppleCooldown", true, Bukkit.getServerName()), Listener {
 
     @EventHandler
     fun onConsume(event: PlayerItemConsumeEvent) {

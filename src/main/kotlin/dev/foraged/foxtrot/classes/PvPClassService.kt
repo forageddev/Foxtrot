@@ -3,6 +3,7 @@ package dev.foraged.foxtrot.classes
 import dev.foraged.commons.annotations.Listeners
 import dev.foraged.foxtrot.classes.impl.ArcherClass
 import dev.foraged.foxtrot.classes.impl.MinerClass
+import dev.foraged.foxtrot.classes.impl.RogueClass
 import dev.foraged.foxtrot.event.BardRestoreEvent
 import gg.scala.flavor.service.Service
 import org.bukkit.Bukkit
@@ -20,7 +21,7 @@ object PvPClassService : Listener
 {
     val equippedKits = hashMapOf<String, PvPClass>()
     val savedPotions = hashMapOf<UUID, PvPClass.SavedPotion>()
-    val classes = listOf(MinerClass, ArcherClass)
+    val classes = listOf(MinerClass, ArcherClass, RogueClass)
 
     fun getPvPClass(player: Player): PvPClass?
     {
