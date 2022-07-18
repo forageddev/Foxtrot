@@ -2,6 +2,7 @@ package dev.foraged.foxtrot.listener
 
 import dev.foraged.commons.annotations.Listeners
 import dev.foraged.foxtrot.map.cooldown.PvPTimerPersistableMap
+import dev.foraged.foxtrot.map.cooldown.nopersist.TeamStuckMap
 import dev.foraged.foxtrot.region.RegionData
 import dev.foraged.foxtrot.server.MapService
 import dev.foraged.foxtrot.team.claim.LandBoard
@@ -11,6 +12,7 @@ import dev.foraged.foxtrot.team.impl.SystemTeam
 import mkremins.fanciful.FancyMessage
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.EventUtils
+import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -37,7 +39,7 @@ object TraverseListener : Listener
         {
             if (!SystemFlag.SAFE_ZONE.appliesAt(event.to))
             {
-                if (SystemFlag.KING_OF_THE_HILL.appliesAt(event.to) || SystemFlag.CITADEL.appliesAt(event.to) && PvPTimerPersistableMap.isOnCooldown(event.player.uniqueId))
+                if ((SystemFlag.KING_OF_THE_HILL.appliesAt(event.to) || SystemFlag.CITADEL.appliesAt(event.to)) && PvPTimerPersistableMap.isOnCooldown(event.player.uniqueId))
                 {
                     PvPTimerPersistableMap.startCooldown(event.player.uniqueId, 0)
                     event.player.sendMessage(CC.RED.toString() + "Your PvP Protection has been removed for entering claimed land.")
@@ -47,10 +49,9 @@ object TraverseListener : Listener
                         event.isCancelled = true
                         for (claim in ownerTo.claims)
                         {
-                            // TODO: sort this shit out later todo: soprt it
-                            /*if (claim.contains(event.from) && !ownerTo.isMember(event.player.uniqueId))
+                            if (claim.contains(event.from) && !ownerTo.isMember(event.player.uniqueId))
                             {
-                                var nearest: Location = TeamStuckCommand.nearestSafeLocation(event.player.location)
+                                var nearest = TeamStuckMap.nearestSafeLocation(event.player.location)
                                 var spawn = false
                                 if (nearest == null)
                                 {
@@ -60,7 +61,7 @@ object TraverseListener : Listener
                                 event.player.teleport(nearest)
                                 event.player.sendMessage("${CC.RED}Moved you to " + (if (spawn) "spawn" else "nearest unclaimed territory") + " because you were in land that was claimed.")
                                 return
-                            }*/
+                            }
                         }
                         event.player.sendMessage("${CC.RED}You cannot enter another team's territory with PvP Protection.")
                         event.player.sendMessage("${CC.RED}Use ${CC.YELLOW}/pvp enable${CC.RED} to remove your protection.")

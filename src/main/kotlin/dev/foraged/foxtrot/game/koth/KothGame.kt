@@ -31,11 +31,11 @@ class KothGame(
     var controllingPlayer: Player? = null
         set(value)
         {
-            if (value == null) {
-                Bukkit.broadcastMessage("${CHAT_PREFIX}${CC.SEC}The game ${CC.PRI}${name}${CC.SEC}has been knocked. ${CC.GRAY}(${formatTimeRemaining()})")
+            if (value == null && !finished) {
+                Bukkit.broadcastMessage("${CHAT_PREFIX}${CC.SEC}The game ${CC.PRI}${name}${CC.SEC} has been knocked. ${CC.GRAY}(${formatTimeRemaining()})")
                 graceTime = System.currentTimeMillis() + 5000
             } else {
-                Bukkit.broadcastMessage("${CHAT_PREFIX}${CC.SEC}The game ${CC.PRI}${name}${CC.SEC}is now being contested. ${CC.GRAY}(${formatTimeRemaining()})")
+                Bukkit.broadcastMessage("${CHAT_PREFIX}${CC.SEC}The game ${CC.PRI}${name}${CC.SEC} is now being contested. ${CC.GRAY}(${formatTimeRemaining()})")
             }
 
             time = System.currentTimeMillis()
@@ -45,24 +45,24 @@ class KothGame(
     override fun start() {
         active = true
         startTime = System.currentTimeMillis()
-        Bukkit.broadcastMessage("$CHAT_PREFIX${CC.SEC}The game ${CC.PRI}${name}${CC.SEC}can now be contested. ${CC.GRAY}(${formatTimeRemaining()})")
+        Bukkit.broadcastMessage("$CHAT_PREFIX${CC.SEC}The game ${CC.PRI}${name}${CC.SEC} can now be contested. ${CC.GRAY}(${formatTimeRemaining()})")
     }
 
     override fun stop() {
         if (controllingPlayer != null)
         {
             Bukkit.broadcastMessage(
-                "$CHAT_PREFIX${CC.SEC}The game ${CC.PRI}${name}${CC.SEC}has been captured by ${
+                "$CHAT_PREFIX${CC.SEC}The game ${CC.PRI}${name}${CC.SEC} has been captured by ${
                     controllingPlayer!!.name
-                } after being contestable for ${CC.PRI}${TimeUtil.formatIntoDetailedString(((startTime - System.currentTimeMillis()) / 1000).toInt())}${CC.SEC}."
+                } after being contestable for ${CC.PRI}${TimeUtil.formatIntoDetailedString(((System.currentTimeMillis() - startTime) / 1000).toInt())}${CC.SEC}."
             )
         }
 
+        controllingPlayer = null
         active = false
         startTime = 0
         graceTime = 0
         time = 0
-        controllingPlayer = null
     }
 
     override fun getScoreboardLines(): List<String>
@@ -75,6 +75,6 @@ class KothGame(
 
         return if (duration > 3600000) TimeUtil.formatIntoAbbreviatedString((duration  / 1000).toInt())
         else if (duration > 60000) TimeUtil.formatIntoMMSS((duration / 1000).toInt())
-        else SECONDS_FORMATTER.format(duration)
+        else SECONDS_FORMATTER.format(duration / 1000).replace(".0", "s")
     }
 }
