@@ -2,6 +2,7 @@ package dev.foraged.foxtrot.ui
 
 import dev.foraged.foxtrot.classes.PvPClassService
 import dev.foraged.foxtrot.classes.impl.ArcherClass
+import dev.foraged.foxtrot.game.GameService
 import dev.foraged.foxtrot.map.cooldown.OpplePersistableMap
 import dev.foraged.foxtrot.map.cooldown.PvPTimerPersistableMap
 import dev.foraged.foxtrot.map.cooldown.nopersist.*
@@ -42,6 +43,10 @@ object FoxtrotScoreboardProvider : ScoreboardAdapter()
                 board.add(" ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.SEC}Streak${CC.GRAY}: ${CC.WHITE}${KillstreakPersistMap[player.uniqueId] ?: 0}")
             }
         }
+        for (game in GameService.games) {
+            if (game.active) board.addAll(game.getScoreboardLines())
+        }
+
         if (MapService.SOTW_ACTIVE) {
             if (MapService.SOTW_ENABLED.contains(player.uniqueId)) board.add("${CC.B_RED}Start Of The World:")
             else board.add("${CC.B_GREEN}Start Of The World:")

@@ -37,7 +37,7 @@ object TraverseListener : Listener
         {
             if (!SystemFlag.SAFE_ZONE.appliesAt(event.to))
             {
-                if (SystemFlag.KING_OF_THE_HILL.appliesAt(event.to) || SystemFlag.CITADEL.appliesAt(event.to))
+                if (SystemFlag.KING_OF_THE_HILL.appliesAt(event.to) || SystemFlag.CITADEL.appliesAt(event.to) && PvPTimerPersistableMap.isOnCooldown(event.player.uniqueId))
                 {
                     PvPTimerPersistableMap.startCooldown(event.player.uniqueId, 0)
                     event.player.sendMessage(CC.RED.toString() + "Your PvP Protection has been removed for entering claimed land.")
