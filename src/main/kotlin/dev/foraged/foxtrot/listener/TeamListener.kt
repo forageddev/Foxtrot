@@ -64,7 +64,7 @@ object TeamListener : Listener
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     fun onBlockIgnite(event: BlockIgniteEvent) {
         if (event.player == null) return
         if (MapService.isAdminOverride(event.player)) return
@@ -78,17 +78,15 @@ object TeamListener : Listener
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onBlockPlace(event: BlockPlaceEvent)
     {
         if (MapService.isAdminOverride(event.player) || MapService.isUnclaimedOrRaidable(event.block.location)) return
 
-        val team = LandBoard.getTeam(event.block.location)
-        if (team is SystemTeam || team is PlayerTeam && !team.isMember(event.player.uniqueId)) {
-            event.player.sendMessage("${CC.YELLOW}You cannot place blocks in ${team.getName(event.player)}${CC.YELLOW}'s territory!")
-            event.isCancelled = true
-            return
-        }
+        val team = LandBoard.getTeam(event.block.location) ?: return
+        if (team is SystemTeam) event.isCancelled = true
+        if (team is PlayerTeam) event.isCancelled = !team.isMember(event.player.uniqueId)
+        if (event.isCancelled) event.player.sendMessage("${CC.YELLOW}You cannot break blocks in ${team.getName(event.player)}${CC.YELLOW}'s territory!")
     }
 
     @EventHandler(ignoreCancelled = true) // normal priority
@@ -103,14 +101,12 @@ object TeamListener : Listener
             if (team.hasFlag(SystemFlag.ROAD) && event.block.y <= 40) return  // allow players to mine under roads
         }
 
-        if (team is SystemTeam || team is PlayerTeam && !team.isMember(event.player.uniqueId)) {
-            event.player.sendMessage("${CC.YELLOW}You cannot break blocks in ${team.getName(event.player)}${CC.YELLOW}'s territory!")
-            event.isCancelled = true
-            return
-        }
+        if (team is SystemTeam) event.isCancelled = true
+        if (team is PlayerTeam) event.isCancelled = !team.isMember(event.player.uniqueId)
+        if (event.isCancelled) event.player.sendMessage("${CC.YELLOW}You cannot break blocks in ${team.getName(event.player)}${CC.YELLOW}'s territory!")
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onBlockPistonRetract(event: BlockPistonRetractEvent)
     {
         if (!event.isSticky) return
@@ -121,7 +117,7 @@ object TeamListener : Listener
         event.isCancelled = LandBoard.getTeam(event.block.location) != LandBoard.getTeam(retractBlock.location)
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onBlockPistonExtend(event: BlockPistonExtendEvent)
     {
         val pistonTeam = LandBoard.getTeam(event.block.location)
@@ -139,37 +135,41 @@ object TeamListener : Listener
         } else event.isCancelled = true
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     fun onHangingPlace(event: HangingPlaceEvent)
     {
         if (MapService.isAdminOverride(event.player) || MapService.isUnclaimedOrRaidable(event.entity.location)) return
 
-        val team = LandBoard.getTeam(event.entity.location)
-        event.isCancelled = team is SystemTeam || team is PlayerTeam && !team.isMember(event.player.uniqueId)
+        val team = LandBoard.getTeam(event.entity.location) ?: return
+        if (team is SystemTeam) event.isCancelled = true
+        if (team is PlayerTeam) event.isCancelled = !team.isMember(event.entity.uniqueId)
 
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     fun onHangingBreakByEntity(event: HangingBreakByEntityEvent)
     {
         if (event.remover !is Player || MapService.isAdminOverride(event.remover as Player)) return
         if (MapService.isUnclaimedOrRaidable(event.entity.location)) return
 
-        val team = LandBoard.getTeam(event.entity.location)
-        event.isCancelled = team is SystemTeam || team is PlayerTeam && !team.isMember(event.remover.uniqueId)
+        val team = LandBoard.getTeam(event.entity.location) ?: return
+        if (team is SystemTeam) event.isCancelled = true
+        if (team is PlayerTeam) event.isCancelled = !team.isMember(event.remover.uniqueId)
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onPlayerInteractEntityEvent(event: PlayerInteractEntityEvent)
     {
         if (event.rightClicked.type != EntityType.ITEM_FRAME || MapService.isAdminOverride(event.player)) return
         if (MapService.isUnclaimedOrRaidable(event.rightClicked.location)) return
-        val team = LandBoard.getTeam(event.rightClicked.location)
-        event.isCancelled = team is SystemTeam || team is PlayerTeam && !team.isMember(event.player.uniqueId)
+
+        val team = LandBoard.getTeam(event.player.location) ?: return
+        if (team is SystemTeam) event.isCancelled = true
+        if (team is PlayerTeam) event.isCancelled = !team.isMember(event.player.uniqueId)
     }
 
     // Used for item frames
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onEntityDamageByEntity(event: EntityDamageByEntityEvent)
     {
         if (event.entity.type != EntityType.ITEM_FRAME) return
@@ -177,11 +177,12 @@ object TeamListener : Listener
         val damager = EventUtils.getAttacker(event.damager)
         if (damager == null || MapService.isAdminOverride(damager) || MapService.isUnclaimedOrRaidable(event.entity.location)) return
 
-        val team = LandBoard.getTeam(event.entity.location)
-        event.isCancelled = team is SystemTeam || team is PlayerTeam && !team.isMember(event.damager.uniqueId)
+        val team = LandBoard.getTeam(event.entity.location) ?: return
+        if (team is SystemTeam) event.isCancelled = true
+        if (team is PlayerTeam) event.isCancelled = !team.isMember(event.damager.uniqueId)
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onEntityDamageByEntity2(event: EntityDamageByEntityEvent)
     {
         if (event.entity !is Player) return
@@ -202,7 +203,7 @@ object TeamListener : Listener
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onEntityHorseDamage(event: EntityDamageByEntityEvent)
     {
         if (event.entity !is Horse) return
@@ -229,12 +230,11 @@ object TeamListener : Listener
         val checkLocation = event.blockClicked.getRelative(event.blockFace).location
         if (MapService.isAdminOverride(event.player) || MapService.isUnclaimedOrRaidable(checkLocation)) return
 
-        val owner = LandBoard.getTeam(checkLocation)
+        val owner = LandBoard.getTeam(checkLocation) ?: return
 
-        if (owner is SystemTeam || owner is PlayerTeam && !owner.isMember(event.player.uniqueId)) {
-            event.isCancelled = true
-            event.player.sendMessage("${CC.YELLOW}You cannot empty buckets in ${owner.getName(event.player)}${CC.YELLOW}'s territory!")
-        }
+        if (owner is SystemTeam) event.isCancelled = true
+        if (owner is PlayerTeam) event.isCancelled = !owner.isMember(event.player.uniqueId)
+        if (event.isCancelled) event.player.sendMessage("${CC.YELLOW}You cannot empty buckets in ${owner.getName(event.player)}${CC.YELLOW}'s territory!")
     }
 
     @EventHandler
@@ -243,11 +243,10 @@ object TeamListener : Listener
         val checkLocation = event.blockClicked.getRelative(event.blockFace).location
         if (MapService.isAdminOverride(event.player) || MapService.isUnclaimedOrRaidable(checkLocation)) return
 
-        val owner = LandBoard.getTeam(checkLocation)
-        if (owner !is PlayerTeam) return
-        if (!owner.isMember(event.player.uniqueId)) {
-            event.isCancelled = true
-            event.player.sendMessage("${CC.YELLOW}You cannot fill buckets in ${owner.getName(event.player)}${CC.YELLOW}'s territory!")
-        }
+        val owner = LandBoard.getTeam(checkLocation) ?: return
+
+        if (owner is SystemTeam) event.isCancelled = true
+        if (owner is PlayerTeam) event.isCancelled = !owner.isMember(event.player.uniqueId)
+        if (event.isCancelled) event.player.sendMessage("${CC.YELLOW}You cannot fill buckets in ${owner.getName(event.player)}${CC.YELLOW}'s territory!")
     }
 }

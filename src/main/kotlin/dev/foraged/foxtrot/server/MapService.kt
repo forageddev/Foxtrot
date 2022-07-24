@@ -61,6 +61,7 @@ object MapService : PluginService
     fun isUnclaimedOrRaidable(loc: Location): Boolean
     {
         val owner = LandBoard.getTeam(loc)
+        if (owner is SystemTeam) return false
         return owner == null || owner is PlayerTeam && owner.raidable
     }
 

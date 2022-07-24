@@ -28,7 +28,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent
 @Listeners
 object SpawnListener : Listener
 {
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     fun onBlockIgnite(event: BlockIgniteEvent)
     {
         if (event.player != null) if (MapService.isAdminOverride(event.player)) return
@@ -36,7 +36,7 @@ object SpawnListener : Listener
         event.isCancelled = SystemFlag.SAFE_ZONE.appliesAt(event.block.location)
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onBlockPlace(event: BlockPlaceEvent)
     {
         if (MapService.isAdminOverride(event.player)) return
@@ -61,7 +61,7 @@ object SpawnListener : Listener
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onBlockBreak(event: BlockBreakEvent)
     {
         if (MapService.isAdminOverride(event.player)) return
@@ -78,19 +78,19 @@ object SpawnListener : Listener
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     fun onHangingPlace(event: HangingPlaceEvent) {
         if (MapService.isAdminOverride(event.player)) return
         event.isCancelled = SystemFlag.SAFE_ZONE.appliesAt(event.entity.location)
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     fun onHangingBreakByEntity(event: HangingBreakByEntityEvent) {
         if (event.remover !is Player || MapService.isAdminOverride(event.remover as Player)) return
         event.isCancelled = SystemFlag.SAFE_ZONE.appliesAt(event.entity.location)
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onPlayerInteractEntityEvent(event: PlayerInteractEntityEvent) {
         if (event.rightClicked.type != EntityType.ITEM_FRAME || MapService.isAdminOverride(event.player)) return
         event.isCancelled = SystemFlag.SAFE_ZONE.appliesAt(event.rightClicked.location)
@@ -98,13 +98,13 @@ object SpawnListener : Listener
     }
 
     // Used for item frames
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onEntityDamageByEntity(event: EntityDamageByEntityEvent) {
         if (event.entity !is Player || event.entity.type != EntityType.ITEM_FRAME || MapService.isAdminOverride(event.damager as Player)) return
         event.isCancelled = SystemFlag.SAFE_ZONE.appliesAt(event.entity.location)
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onEntityDamage(event: FoodLevelChangeEvent) {
         if (SystemFlag.SAFE_ZONE.appliesAt(event.entity.location)) {
             (event.entity as Player).foodLevel = 20
@@ -112,12 +112,12 @@ object SpawnListener : Listener
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onEntityDamage(event: EntityDamageEvent) {
         if ((event.entity is Player || event.entity is Horse) && SystemFlag.SAFE_ZONE.appliesAt(event.entity.location)) event.isCancelled = true
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onEntityDamageByEntity2(event: EntityDamageByEntityEvent)
     {
         if (event.entity !is Player) return

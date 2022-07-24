@@ -238,6 +238,7 @@ object TeamCommand : GoodCommand()
             if (team.isMember(player.uniqueId)) {
                 player.sendMessage("${CC.YELLOW}Balance: ${CC.BLUE}$${team.balance}")
             }
+            player.sendMessage(("${CC.YELLOW}DTR: ${CC.RED}${Team.DTR_FORMAT.format(team.deathsUntilRaidable)}"))
         }
         player.sendMessage("${CC.GRAY}${CC.STRIKE_THROUGH}${"-".repeat(52)}")
     }

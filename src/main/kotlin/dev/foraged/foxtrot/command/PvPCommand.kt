@@ -1,5 +1,6 @@
 package dev.foraged.foxtrot.command
 
+import dev.foraged.commons.acf.CommandHelp
 import dev.foraged.commons.acf.ConditionFailedException
 import dev.foraged.commons.acf.annotation.*
 import dev.foraged.commons.annotations.commands.AutoRegister
@@ -17,6 +18,12 @@ import kotlin.time.Duration.Companion.seconds
 @AutoRegister
 object PvPCommand : GoodCommand()
 {
+    @HelpCommand
+    @Default
+    fun help(help: CommandHelp) {
+        help.showHelp()
+    }
+
     @Subcommand("enable")
     @Description("Disable your pvp timer protection")
     fun enable(player: Player, @Default("self") target: UUID) {

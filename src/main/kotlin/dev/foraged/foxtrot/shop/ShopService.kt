@@ -118,8 +118,8 @@ object ShopService : Listener
 
                     val pricePer = shop.price / shop.amount
                     var sellCount = 0
-                    for (item in player.inventory.contents) {
-                        if (item == null) continue
+                    for (item in player.inventory.contents.filterNotNull()) {
+                        if (!item.isSimilar(shop.item)) continue
                         if (sellCount >= shop.amount && !player.isSneaking) break
                         if (sellCount + item.amount >= shop.amount && !player.isSneaking) {
                             sellCount = shop.amount
