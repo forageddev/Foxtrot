@@ -39,7 +39,7 @@ class PlayerTeam(identifier: UUID, name: String, val leader: TeamMember) : Team(
     val onlineMemberCount: Int
         get() {
             var amt = 0
-            for (member in members)
+            for (member in members + leader)
             {
                 val exactPlayer = member.getBukkitPlayer()
                 if (exactPlayer != null && !exactPlayer.hasMetadata("invisible")) amt++

@@ -1,11 +1,18 @@
 package dev.foraged.foxtrot.chat
 
-enum class ChatMode(val prefix: Char)
+import com.minexd.core.bukkit.chat.ChatChannelComposite
+import com.minexd.core.bukkit.chat.impl.GlobalChatChannelComposite
+import dev.foraged.foxtrot.chat.composite.AllianceChatChannelComposite
+import dev.foraged.foxtrot.chat.composite.OfficerChatChannelComposite
+import dev.foraged.foxtrot.chat.composite.TeamChatChannelComposite
+import dev.foraged.foxtrot.chat.part.TeamPart
+
+enum class ChatMode(val prefix: Char, val composite: ChatChannelComposite)
 {
-    PUBLIC('!'),
-    ALLIANCE('#'),
-    TEAM('@'),
-    OFFICER('^');
+    GLOBAL('!', GlobalChatChannelComposite),
+    ALLIANCE('#', AllianceChatChannelComposite),
+    TEAM('@', TeamChatChannelComposite),
+    OFFICER('^', OfficerChatChannelComposite);
 
     companion object {
         fun findFromPrefix(prefix: Char) : ChatMode? {

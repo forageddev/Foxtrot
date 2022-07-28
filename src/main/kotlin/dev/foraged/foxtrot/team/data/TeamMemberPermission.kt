@@ -10,6 +10,7 @@ enum class TeamMemberPermission(val displayName: String)
     UPDATE_HOME("Update Home Location"),
     WITHDRAW_BALANCE("Withdraw Money"),
     ACCESS_SUBCLAIMS("Access Chest Subclaims"),
+    OFFICER_CHAT("Officer Chat Access"),
     CLAIM_LAND("Claim Land"),
     UNCLAIM_LAND("Unclaim Land"),
     PROMOTE_OFFICER("Promote to Officer"),

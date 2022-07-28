@@ -10,6 +10,7 @@ enum class TeamMemberRole(val displayName: String, vararg val permissions: TeamM
         TeamMemberPermission.KICK_MEMBER,
         TeamMemberPermission.WITHDRAW_BALANCE,
         TeamMemberPermission.ACCESS_SUBCLAIMS,
+        TeamMemberPermission.OFFICER_CHAT,
         TeamMemberPermission.UPDATE_ANNOUNCEMENT
     ),
     CO_LEADER("Co-Leader",

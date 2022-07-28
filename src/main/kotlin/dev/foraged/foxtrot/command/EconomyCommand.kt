@@ -27,7 +27,7 @@ object EconomyCommand : GoodCommand()
     fun pay(player: Player, target: UUID, amount: Double) {
         val targetPlayer = Bukkit.getPlayer(target) ?: throw ConditionFailedException("You cannot send money to players who are not online.")
         if (player == targetPlayer) throw ConditionFailedException("You cannot send money to your own account.")
-        if (amount < 0) throw ConditionFailedException("You cannot send a negative amount of money.")
+        if (amount <= 0) throw ConditionFailedException("You cannot send a negative amount of money.")
         if (amount > 100_000) throw ConditionFailedException("You cannot more than $100,000 per transaction.")
 
         if ((BalancePersistMap[player.uniqueId] ?: 0.0) < amount) throw ConditionFailedException("You cannot afford to send this much money.")

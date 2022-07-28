@@ -7,8 +7,10 @@ import dev.foraged.commons.annotations.commands.AutoRegister
 import dev.foraged.commons.annotations.commands.customizer.CommandManagerCustomizer
 import dev.foraged.commons.command.CommandManager
 import dev.foraged.commons.command.GoodCommand
+import dev.foraged.foxtrot.chat.ChatMode
 import dev.foraged.foxtrot.event.team.TeamCreateEvent
 import dev.foraged.foxtrot.map.BalancePersistMap
+import dev.foraged.foxtrot.map.ChatModePersistMap
 import dev.foraged.foxtrot.map.cooldown.nopersist.TeamHomeMap
 import dev.foraged.foxtrot.map.cooldown.nopersist.TeamStuckMap
 import dev.foraged.foxtrot.server.MapService
@@ -25,6 +27,7 @@ import dev.foraged.foxtrot.team.enums.SystemFlag
 import dev.foraged.foxtrot.team.impl.PlayerTeam
 import dev.foraged.foxtrot.team.impl.SystemTeam
 import dev.foraged.foxtrot.team.menu.TeamPermissionsMenu
+import dev.foraged.foxtrot.team.result.TeamListPaginatedResult
 import gg.scala.cache.uuid.ScalaStoreUuidCache
 import net.evilblock.cubed.menu.menus.SelectColorMenu
 import net.evilblock.cubed.serializers.Serializers
@@ -33,6 +36,7 @@ import net.evilblock.cubed.util.bukkit.ColorUtil
 import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.text.TextUtil
+import net.evilblock.cubed.util.time.TimeUtil
 import net.md_5.bungee.api.chat.ClickEvent
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -119,7 +123,7 @@ object TeamCommand : GoodCommand()
         player.sendMessage(Serializers.gson.toJson(team))
     }
 
-    @Subcommand("invite")
+    @Subcommand("invite|inv")
     @Description("Invite a player to your team")
     fun invite(player: Player, target: UUID, @Default("self") team: Team) {
         if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.CREATE_INVITES)) throw ConditionFailedException("You are not allowed to invite members to ${team.name}.")
@@ -218,27 +222,30 @@ object TeamCommand : GoodCommand()
         player.sendMessage("")
         if (team is PlayerTeam)
         {
-            player.sendMessage("${CC.YELLOW}Leader: ${CC.WHITE}${(if (team.offlineMembers.contains(team.leader.uniqueId)) CC.GRAY else CC.GREEN) + team.leader.name}")
-            if (team.leaders.isNotEmpty()) player.sendMessage("${CC.YELLOW}Co-Leaders: ${CC.WHITE}${
+            player.sendMessage("${CC.SEC}Leader: ${CC.WHITE}${(if (team.offlineMembers.contains(team.leader.uniqueId)) CC.GRAY else CC.GREEN) + team.leader.name}")
+            if (team.leaders.isNotEmpty()) player.sendMessage("${CC.SEC}Co-Leaders: ${CC.WHITE}${
                 team.leaders.joinToString(
                     ","
                 ) { (if (team.offlineMembers.contains(it.uniqueId)) CC.GRAY else CC.GREEN) + it.name }
             }")
-            if (team.officers.isNotEmpty()) player.sendMessage("${CC.YELLOW}Officers: ${CC.WHITE}${
+            if (team.officers.isNotEmpty()) player.sendMessage("${CC.SEC}Officers: ${CC.WHITE}${
                 team.officers.joinToString(
                     ","
                 ) { (if (team.offlineMembers.contains(it.uniqueId)) CC.GRAY else CC.GREEN) + it.name }
             }")
-            if (team.members.filter { it.role == TeamMemberRole.MEMBER }.isNotEmpty()) player.sendMessage("${CC.YELLOW}Members: ${CC.WHITE}${
+            if (team.members.filter { it.role == TeamMemberRole.MEMBER }.isNotEmpty()) player.sendMessage("${CC.SEC}Members: ${CC.WHITE}${
                 team.members.filter { it.role == TeamMemberRole.MEMBER }.joinToString(
                     ","
                 ) { (if (team.offlineMembers.contains(it.uniqueId)) CC.GRAY else CC.GREEN) + it.name }
             }")
 
             if (team.isMember(player.uniqueId)) {
-                player.sendMessage("${CC.YELLOW}Balance: ${CC.BLUE}$${team.balance}")
+                player.sendMessage("${CC.SEC}Balance: ${CC.BLUE}$${team.balance}")
             }
-            player.sendMessage(("${CC.YELLOW}DTR: ${CC.RED}${Team.DTR_FORMAT.format(team.deathsUntilRaidable)}"))
+            player.sendMessage(("${CC.SEC}Deaths until Raidable: ${CC.RED}${Team.DTR_FORMAT.format(team.deathsUntilRaidable)}"))
+            if (team.regenTime > System.currentTimeMillis()) {
+                player.sendMessage("${CC.SEC}Regeneration: ${CC.PRI}${TimeUtil.formatIntoDetailedString(((team.regenTime - System.currentTimeMillis()) / 1000).toInt())}")
+            }
         }
         player.sendMessage("${CC.GRAY}${CC.STRIKE_THROUGH}${"-".repeat(52)}")
     }
@@ -250,6 +257,21 @@ object TeamCommand : GoodCommand()
 
         TeamService.unregisterTeam(team)
         Bukkit.broadcastMessage("${Team.CHAT_PREFIX}${CC.PRI}${team.name}${CC.SEC} has been ${CC.RED}disbanded${CC.SEC} by ${CC.PRI}${player.displayName}")
+    }
+
+    @Subcommand("online|onlinecount|onlinemembers")
+    @Description("View online players")
+    fun online(player: Player, @Default("self") team: Team) {
+        if (team is PlayerTeam) player.sendMessage("${Team.CHAT_PREFIX}${CC.SEC}There is ${CC.PRI}${team.onlineMemberCount}${CC.SEC} online members in ${team.getName(player)}${CC.SEC}.")
+        else throw ConditionFailedException("There is no members in a system team.")
+    }
+
+    @Subcommand("list|l")
+    @Description("View a list of online teams")
+    fun list(player: Player, @Default("1") page: Int) {
+        TeamListPaginatedResult.display(player, TeamService.teams.filterIsInstance<PlayerTeam>().filter {
+            it.onlineMemberCount > 0
+        }, page, "team list %s")
     }
 
     @Subcommand("deposit|d|addmoney")
@@ -266,6 +288,7 @@ object TeamCommand : GoodCommand()
         if (team is PlayerTeam) {
             team.broadcast("${CC.SEC}${player.name} has deposited ${CC.PRI}$${amount}${CC.SEC} into the team balance.")
             team.balance += amount
+            BalancePersistMap.minus(player.uniqueId, amount)
         }
     }
 
@@ -286,7 +309,7 @@ object TeamCommand : GoodCommand()
     }
 
     @Subcommand("officer add")
-    @Description("Promote a team member to officer")
+    @Description("Promote a team member")
     fun addOfficer(player: Player, target: UUID, @Default("self") team: Team) {
         if (team is SystemTeam) throw ConditionFailedException("You cannot promote members in system team.")
         if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.PROMOTE_OFFICER)) throw ConditionFailedException("You are not allowed to promote members in ${team.name}.")
@@ -302,7 +325,7 @@ object TeamCommand : GoodCommand()
     }
 
     @Subcommand("officer remove")
-    @Description("Promote a team member to officer")
+    @Description("Demote a team member")
     fun removeOfficer(player: Player, target: UUID, @Default("self") team: Team) {
         if (team is SystemTeam) throw ConditionFailedException("You cannot promote members in system team.")
         if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.DEMOTE_OFFICER)) throw ConditionFailedException("You are not allowed to promote members in ${team.name}.")
@@ -317,7 +340,7 @@ object TeamCommand : GoodCommand()
     }
 
     @Subcommand("coleader add")
-    @Description("Promote a team member to co-leader")
+    @Description("Promote a team member")
     fun addCoLeader(player: Player, target: UUID, @Default("self") team: Team) {
         if (team is SystemTeam) throw ConditionFailedException("You cannot promote members in system team.")
         if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.PROMOTE_CO_LEADER)) throw ConditionFailedException("You are not allowed to promote members in ${team.name}.")
@@ -332,7 +355,7 @@ object TeamCommand : GoodCommand()
     }
 
     @Subcommand("coleader remove")
-    @Description("Promote a team member to co-leader")
+    @Description("Demote a team member")
     fun removeCoLeader(player: Player, target: UUID, @Default("self") team: Team) {
         if (team is SystemTeam) throw ConditionFailedException("You cannot promote members in system team.")
         if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.DEMOTE_CO_LEADER)) throw ConditionFailedException("You are not allowed to promote members in ${team.name}.")
@@ -350,6 +373,13 @@ object TeamCommand : GoodCommand()
     @Description("Display the team visual map")
     fun map(player: Player) {
         VisualClaim(player, VisualClaimType.MAP, false).draw(false)
+    }
+
+    @Subcommand("chat|c|channel|joinchannel")
+    @Description("Change your team chat channel")
+    fun channel(player: Player, channel: ChatMode) {
+        ChatModePersistMap[player.uniqueId] = channel
+        player.sendMessage("${CC.SEC}You are now in ${CC.PRI}${channel.name}${CC.SEC} chat.")
     }
 
     @Subcommand("home|hq|go")
