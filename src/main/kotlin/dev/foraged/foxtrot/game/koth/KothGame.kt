@@ -32,10 +32,10 @@ class KothGame(
         set(value)
         {
             if (value == null && !finished) {
-                Bukkit.broadcastMessage("${CHAT_PREFIX}${CC.SEC}The game ${CC.PRI}${name}${CC.SEC} has been knocked. ${CC.GRAY}(${formatTimeRemaining()})")
+                Bukkit.broadcastMessage("$CHAT_PREFIX${CC.SEC}The game ${CC.PRI}${name}${CC.SEC} has been knocked. ${CC.GRAY}(${formatTimeRemaining()})")
                 graceTime = System.currentTimeMillis() + 5000
             } else {
-                Bukkit.broadcastMessage("${CHAT_PREFIX}${CC.SEC}The game ${CC.PRI}${name}${CC.SEC} is now being contested. ${CC.GRAY}(${formatTimeRemaining()})")
+                Bukkit.broadcastMessage("$CHAT_PREFIX${CC.SEC}The game ${CC.PRI}${name}${CC.SEC} is now being contested. ${CC.GRAY}(${formatTimeRemaining()})")
             }
 
             time = System.currentTimeMillis()
@@ -48,7 +48,7 @@ class KothGame(
         Bukkit.broadcastMessage("$CHAT_PREFIX${CC.SEC}The game ${CC.PRI}${name}${CC.SEC} can now be contested. ${CC.GRAY}(${formatTimeRemaining()})")
     }
 
-    override fun stop() {
+    override fun stop(winner: Player?) {
         if (controllingPlayer != null)
         {
             Bukkit.broadcastMessage(
@@ -67,7 +67,7 @@ class KothGame(
 
     override fun getScoreboardLines(): List<String>
     {
-        return listOf("${CC.B_BLUE}${name}${CC.GRAY}: ${CC.RED}${formatTimeRemaining()}")
+        return listOf("${if (name.contains("Citadel")) CC.BD_PURPLE else CC.B_BLUE}${name}${CC.GRAY}: ${CC.RED}${formatTimeRemaining()}")
     }
 
     fun formatTimeRemaining() : String {

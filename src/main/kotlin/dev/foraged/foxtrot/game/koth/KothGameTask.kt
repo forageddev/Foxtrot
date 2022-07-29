@@ -13,7 +13,7 @@ class KothGameTask : Runnable
     override fun run() {
         for (game in GameService.games.filterIsInstance<KothGame>().filter { it.active }) {
             if (game.finished) {
-                game.stop()
+                game.stop(null)
                 continue
             }
 

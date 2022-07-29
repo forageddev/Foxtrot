@@ -7,6 +7,7 @@ import dev.foraged.commons.annotations.container.flavor.LazyStartup
 import dev.foraged.commons.persist.impl.IntegerPersistMap
 import dev.foraged.enchants.enchant.EnchantService
 import dev.foraged.foxtrot.enchant.LifeStealerEnchant
+import dev.foraged.foxtrot.game.GameService
 import dev.foraged.foxtrot.map.cooldown.OpplePersistableMap
 import dev.foraged.foxtrot.map.cooldown.PvPTimerPersistableMap
 import dev.foraged.foxtrot.map.cooldown.nopersist.EnderpearlMap
@@ -87,5 +88,6 @@ class FoxtrotExtendedPlugin : ExtendedPaperPlugin()
     @ContainerDisable
     fun close() {
         TeamService.close()
+        GameService.close()
     }
 }

@@ -14,6 +14,7 @@ import dev.foraged.commons.command.CommandManager
 import dev.foraged.commons.command.GoodCommand
 import dev.foraged.foxtrot.game.Game
 import dev.foraged.foxtrot.game.GameService
+import dev.foraged.foxtrot.game.dtc.DTCGame
 import dev.foraged.foxtrot.game.koth.KothGame
 import dev.foraged.foxtrot.game.result.GamePaginatedResult
 import net.evilblock.cubed.util.CC
@@ -44,11 +45,23 @@ object GameCommand : GoodCommand()
     @Subcommand("koth create")
     @Description("Create a koth at your location")
     fun create(player: Player, name: String, duration: Duration) {
-        if (GameService.findGameByName(name) != null) throw ConditionFailedException("A game with this game already exists.")
+        if (GameService.findGameByName(name) != null) throw ConditionFailedException("A game with this name already exists.")
 
         GameService.registerGame(KothGame(name, player.location.blockY,
             Cuboid(player.location, player.getTargetBlock(setOf(Material.AIR), 15).location), duration.get()))
         player.sendMessage("${CC.SEC}You have created a new ${CC.PRI}KOTH${CC.SEC} with the name ${CC.PRI}${name}")
+    }
+
+    @Subcommand("dtc create")
+    @Description("Create a dtc at your location")
+    fun create(player: Player, name: String) {
+        if (GameService.findGameByName(name) != null) throw ConditionFailedException("A game with this name already exists.")
+
+        val block = player.getTargetBlock(setOf(Material.AIR), 5)
+        if (block.type != Material.OBSIDIAN) throw ConditionFailedException("You can only create a destroy the core game whilst looking at a block of obsidian.")
+        GameService.registerGame(DTCGame(name, block.location))
+        player.sendMessage("${CC.SEC}You have created a new ${CC.PRI}DTC${CC.SEC} with the name ${CC.PRI}${name}")
+        player.sendMessage("${CC.SEC}Core Location: ${CC.PRI}${block.location}")
     }
 
     @Subcommand("list")
@@ -71,7 +84,7 @@ object GameCommand : GoodCommand()
     fun stop(player: Player, game: Game) {
         if (!game.active) throw ConditionFailedException("${game.name} is not currently active.")
 
-        game.stop()
+        game.stop(null)
         player.sendMessage("${CC.SEC}You stopped the game ${CC.PRI}${game.name}${CC.SEC}.")
     }
 

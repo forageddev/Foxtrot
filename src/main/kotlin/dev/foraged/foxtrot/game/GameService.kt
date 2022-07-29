@@ -2,7 +2,9 @@ package dev.foraged.foxtrot.game
 
 import dev.foraged.commons.persist.PluginService
 import dev.foraged.foxtrot.FoxtrotExtendedPlugin
+import dev.foraged.foxtrot.game.dtc.DTCGame
 import dev.foraged.foxtrot.game.koth.KothGame
+import gg.scala.flavor.service.Close
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.store.controller.DataStoreObjectController
@@ -14,12 +16,24 @@ object GameService : PluginService {
 
     val games = mutableListOf<Game>()
     val kothStorage: DataStoreObjectController<KothGame> = DataStoreObjectControllerCache.create()
+    val dtcStorage: DataStoreObjectController<DTCGame> = DataStoreObjectControllerCache.create()
 
     @Configure
     override fun configure()
     {
         kothStorage.loadAll(DataStoreStorageType.MONGO).thenAccept {
             it.values.forEach(this::registerGame)
+        }
+        dtcStorage.loadAll(DataStoreStorageType.MONGO).thenAccept {
+            it.values.forEach(this::registerGame)
+        }
+    }
+
+    @Close
+    fun close() {
+        games.forEach {
+            if (it is KothGame) kothStorage.save(it, DataStoreStorageType.MONGO)
+            if (it is DTCGame) dtcStorage.save(it, DataStoreStorageType.MONGO)
         }
     }
 
