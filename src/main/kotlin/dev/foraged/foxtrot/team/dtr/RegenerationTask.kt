@@ -2,6 +2,7 @@ package dev.foraged.foxtrot.team.dtr
 
 import dev.foraged.commons.annotations.runnables.Repeating
 import dev.foraged.foxtrot.FoxtrotExtendedPlugin
+import dev.foraged.foxtrot.server.MapService
 import dev.foraged.foxtrot.team.TeamService
 import dev.foraged.foxtrot.team.impl.PlayerTeam
 import net.evilblock.cubed.util.CC
@@ -46,11 +47,13 @@ class RegenerationTask : Runnable {
 
         fun isOnCooldown(team: PlayerTeam): Boolean
         {
+            if (MapService.EOTW_ACTIVE) return true
             return team.regenTime > System.currentTimeMillis()
         }
 
         fun isRegenerating(team: PlayerTeam): Boolean
         {
+            if (MapService.EOTW_ACTIVE) return false
             return !isOnCooldown(team) && team.deathsUntilRaidable != team.maxDeathsUntilRaidable
         }
 

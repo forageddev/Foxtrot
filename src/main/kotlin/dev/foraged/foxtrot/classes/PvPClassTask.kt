@@ -1,5 +1,6 @@
 package dev.foraged.foxtrot.classes
 
+import com.cryptomorin.xseries.messages.ActionBar
 import dev.foraged.commons.annotations.runnables.Repeating
 import net.evilblock.cubed.util.CC
 import org.bukkit.Bukkit
@@ -15,6 +16,7 @@ class PvPClassTask : Runnable
             {
                 val pvpClass = PvPClassService.equippedKits[player.name]!!
 
+                ActionBar.sendActionBar(player, pvpClass.getActionBarText(player))
                 if (!pvpClass.qualifies(player.inventory))
                 {
                     PvPClassService.equippedKits.remove(player.name)

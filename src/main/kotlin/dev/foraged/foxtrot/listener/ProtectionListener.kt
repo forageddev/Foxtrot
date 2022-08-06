@@ -17,6 +17,11 @@ object ProtectionListener : Listener {
     private val droppedItems: MutableSet<Int> = HashSet()
 
     @EventHandler
+    fun onExplode(event: EntityExplodeEvent) {
+        event.blockList().clear()
+    }
+
+    @EventHandler
     fun onPlayerPickupItem(event: PlayerPickupItemEvent) {
         if (PvPTimerPersistableMap.isOnCooldown(event.player.uniqueId)) {
             event.isCancelled = droppedItems.contains(event.item.entityId)

@@ -3,7 +3,7 @@ package dev.foraged.foxtrot.team.result
 import dev.foraged.foxtrot.team.impl.PlayerTeam
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
-import net.evilblock.cubed.util.bukkit.FancyMessage
+import net.evilblock.cubed.message.FancyMessage
 import net.evilblock.cubed.util.bukkit.PaginatedResult
 import net.md_5.bungee.api.chat.ClickEvent
 

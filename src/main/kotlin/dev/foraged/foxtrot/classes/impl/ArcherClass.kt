@@ -31,7 +31,7 @@ import org.bukkit.scheduler.BukkitRunnable
 import java.util.concurrent.ConcurrentHashMap
 
 @Listeners
-object ArcherClass : PvPClass("Archer", 15, listOf(Material.SUGAR, Material.FEATHER))
+object ArcherClass : PvPClass("Archer", ChatColor.DARK_PURPLE, 15, listOf(Material.SUGAR, Material.FEATHER))
 {
     const val MARK_SECONDS = 5
 
@@ -88,7 +88,7 @@ object ArcherClass : PvPClass("Archer", 15, listOf(Material.SUGAR, Material.FEAT
                 victim,
                 ArrowDamageByPlayer(victim.name, damage, (arrow.shooter as Player).name, shotFrom, distance)
             )*/
-            victim.health = Math.max(0.0, victim.health - damage)
+            victim.health = 0.0.coerceAtLeast(victim.health - damage)
             if (PvPClassService.hasKitOn(victim, this)) {
                 shooter.sendMessage(
                     "${CC.YELLOW}[${CC.BLUE}Arrow Range${CC.YELLOW} (${CC.RED}${distance.toInt()}${CC.YELLOW})] ${CC.RED}Cannot mark other Archers. " +
@@ -97,8 +97,16 @@ object ArcherClass : PvPClass("Archer", 15, listOf(Material.SUGAR, Material.FEAT
             } else if (pullback >= 0.5f) {
                 shooter.sendMessage(
                     ("${CC.YELLOW}[${CC.BLUE}Arrow Range${CC.YELLOW} (${CC.RED}${distance.toInt()}${CC.YELLOW})] ${CC.GOLD}Marked player for $MARK_SECONDS seconds. " +
-                            "${CC.B_BLUE}(" + (damage / 2) + " ${CC.B_RED}${Constants.HEART_SYMBOL}${CC.B_BLUE}" + (if ((damage / 2 == 1)) "" else "s") + ")")
+                            "${CC.B_RED}(${CC.B_WHITE}${(damage / 2)}${CC.B_RED}${Constants.HEART_SYMBOL})")
                 )
+
+                if (isUltimateReady(shooter)) activateUltimate(shooter)
+                else increaseUltimate(shooter, distance)
+                if (isUltimateActive(shooter)) {
+                    victim.world.createExplosion(victim.location,
+                        ((2 * distance) / (distance / 33)).toFloat().coerceAtMost(10f), false)
+                    deactivateUltimate(shooter)
+                }
 
                 // Only send the message if they're not already marked.
                 if (!isMarked(victim)) victim.sendMessage("${CC.B_RED}Marked! ${CC.YELLOW}An archer has shot you and marked you (+25% damage) for $MARK_SECONDS seconds.")
@@ -145,8 +153,8 @@ object ArcherClass : PvPClass("Archer", 15, listOf(Material.SUGAR, Material.FEAT
                 }.runTaskLater(FoxtrotExtendedPlugin.instance, ((MARK_SECONDS * 20) + 5).toLong())
             } else {
                 shooter.sendMessage(
-                    ("${CC.YELLOW}[${CC.BLUE}Arrow Range${CC.YELLOW} (${CC.RED}${distance.toInt()}${CC.YELLOW})] ${CC.GOLD}Marked player for $MARK_SECONDS seconds. " +
-                            "${CC.B_BLUE}(" + (damage / 2) + " ${CC.B_RED}${Constants.HEART_SYMBOL}${CC.B_BLUE}" + (if ((damage / 2 == 1)) "" else "s") + ")")
+                        ("${CC.YELLOW}[${CC.BLUE}Arrow Range${CC.YELLOW} (${CC.RED}${distance.toInt()}${CC.YELLOW})] ${CC.GOLD}Bow was not fully drawn player not marked. " +
+                            "${CC.B_RED}(${CC.B_WHITE}${(damage / 2)}${CC.B_RED}${Constants.HEART_SYMBOL})")
                 )
             }
         }

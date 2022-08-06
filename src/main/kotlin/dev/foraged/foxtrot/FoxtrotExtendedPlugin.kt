@@ -19,6 +19,8 @@ import dev.foraged.foxtrot.map.stats.*
 import dev.foraged.foxtrot.team.TeamService
 import dev.foraged.foxtrot.ui.FoxtrotNametagProvider
 import dev.foraged.foxtrot.ui.FoxtrotScoreboardProvider
+import dev.foraged.foxtrot.ui.FoxtrotTablistProvider
+import dev.foraged.tablist.TablistHandler
 import me.lucko.helper.plugin.ap.Plugin
 import me.lucko.helper.plugin.ap.PluginDependency
 import net.evilblock.cubed.nametag.NametagHandler
@@ -82,6 +84,7 @@ class FoxtrotExtendedPlugin : ExtendedPaperPlugin()
 
         NametagHandler.registerProvider(FoxtrotNametagProvider)
         ScoreboardHandler.configure(FoxtrotScoreboardProvider)
+        TablistHandler(this, FoxtrotTablistProvider, 2, 2)
         EnchantService.registerEnchant(LifeStealerEnchant)
     }
 

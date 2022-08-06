@@ -1,5 +1,6 @@
 package dev.foraged.foxtrot.team.impl
 
+import dev.foraged.foxtrot.server.MapService
 import dev.foraged.foxtrot.team.Team
 import dev.foraged.foxtrot.team.TeamService
 import dev.foraged.foxtrot.team.data.TeamMember
@@ -8,31 +9,33 @@ import dev.foraged.foxtrot.team.data.TeamMemberRole
 import dev.foraged.foxtrot.team.dtr.RegenerationTask
 import gg.scala.store.storage.type.DataStoreStorageType
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.Constants
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import java.util.*
 
 
-class PlayerTeam(identifier: UUID, name: String, val leader: TeamMember) : Team(identifier, name)
-{
+class PlayerTeam(identifier: UUID, name: String, val leader: TeamMember) : Team(identifier, name) {
     var balance: Double = 0.0
     var deathsUntilRaidable: Double = 1.01
+        get() {
+            return if (MapService.EOTW_ACTIVE) -0.99
+            else field
+        }
     val maxDeathsUntilRaidable : Double
         get() = RegenerationTask.getMaxDTR(size)
     var regenTime: Long = 0
     val members = mutableSetOf<TeamMember>()
     var home: Location? = null
     var announcement: String? = null
+    var discord: String? = null
     val permissions = mutableMapOf<UUID, MutableList<TeamMemberPermission>>()
     val rolePermissions = mutableMapOf<TeamMemberRole, MutableList<TeamMemberPermission>>()
-    val raidable: Boolean
-        get() = deathsUntilRaidable < 0
+    var focused: UUID? = null
+    val raidable: Boolean get() = deathsUntilRaidable < 0
 
-    val officers: List<TeamMember>
-        get() = members.filter { it.role == TeamMemberRole.OFFICER }
-
-    val leaders: List<TeamMember>
-        get() = members.filter { it.role == TeamMemberRole.CO_LEADER }
+    val officers: List<TeamMember> get() = members.filter { it.role == TeamMemberRole.OFFICER }
+    val leaders: List<TeamMember> get() = members.filter { it.role == TeamMemberRole.CO_LEADER }
 
     val size = members.size + 1
 
@@ -148,6 +151,14 @@ class PlayerTeam(identifier: UUID, name: String, val leader: TeamMember) : Team(
     {
         val dtrPerHour: Double = RegenerationTask.getBaseDTRIncrement(size) * playersOnline
         return dtrPerHour / 60
+    }
+
+    fun getDTRFormatted() : String {
+        val color = if (raidable) CC.D_RED else if (deathsUntilRaidable / maxDeathsUntilRaidable <= 0.25) CC.YELLOW else CC.GREEN
+        val symbol = if (RegenerationTask.isRegenerating(this)) {
+            if (onlineMemberCount == 0) "${CC.GRAY}${Constants.ARROW_LEFT}" else "${CC.GREEN}${Constants.ARROW_UP}"
+        } else if (RegenerationTask.isOnCooldown(this)) "${CC.RED}■" else "${CC.GREEN}${Constants.ARROW_LEFT}"
+        return "$color${DTR_FORMAT.format(deathsUntilRaidable)}$symbol"
     }
 
     fun playerDeath(playerName: String, dtrLoss: Double)

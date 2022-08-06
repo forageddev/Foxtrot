@@ -3,7 +3,7 @@ package dev.foraged.foxtrot.chat.part
 import com.minexd.core.bukkit.chat.impl.GlobalChatChannelComposite
 import dev.foraged.foxtrot.team.TeamService
 import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.bukkit.FancyMessage
+import net.evilblock.cubed.message.FancyMessage
 import net.md_5.bungee.api.chat.ClickEvent
 import org.bukkit.event.player.AsyncPlayerChatEvent
 

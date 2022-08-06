@@ -11,7 +11,7 @@ import org.bukkit.event.player.PlayerItemConsumeEvent
 
 @RegisterMap
 @Listeners
-object PotionsDrankPersistMap : IntegerPersistMap("PotionsDrank", "Potions_Drank", true, Bukkit.getServerName()), Listener
+object PotionsDrankPersistMap : IntegerPersistMap("${Bukkit.getServerName()}PotionsDrank", "Potions_Drank", true, Bukkit.getServerName()), Listener
 {
     @EventHandler
     fun onSplash(event: PlayerItemConsumeEvent) {

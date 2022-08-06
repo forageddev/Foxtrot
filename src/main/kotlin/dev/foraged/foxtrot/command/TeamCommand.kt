@@ -30,12 +30,14 @@ import dev.foraged.foxtrot.team.menu.TeamPermissionsMenu
 import dev.foraged.foxtrot.team.result.TeamListPaginatedResult
 import gg.scala.cache.uuid.ScalaStoreUuidCache
 import net.evilblock.cubed.menu.menus.SelectColorMenu
+import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ColorUtil
-import net.evilblock.cubed.util.bukkit.FancyMessage
+import net.evilblock.cubed.message.FancyMessage
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.text.TextUtil
+import net.evilblock.cubed.util.time.DateUtil
 import net.evilblock.cubed.util.time.TimeUtil
 import net.md_5.bungee.api.chat.ClickEvent
 import org.bukkit.Bukkit
@@ -169,6 +171,7 @@ object TeamCommand : GoodCommand()
             team.permissions[player.uniqueId] = mutableListOf()
             team.members.add(TeamMember(player.uniqueId, player.name, TeamMemberRole.MEMBER))
             team.broadcast("${CC.LIGHT_PURPLE}${player.name}${CC.YELLOW} has joined the team.")
+            NametagHandler.reloadPlayer(player)
         }
     }
 
@@ -178,16 +181,15 @@ object TeamCommand : GoodCommand()
         if (team is SystemTeam) throw ConditionFailedException("You cannot kick players from system teams.")
         if (team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.KICK_MEMBER)) throw ConditionFailedException("You are not allowed kick members from ${team.name}.")
 
-        if (team is PlayerTeam)
-        {
+        if (team is PlayerTeam) {
             if (!team.isMember(target)) throw ConditionFailedException("${ScalaStoreUuidCache.username(target)} is not in your team ${team.name}.")
             if (team.raidable) throw ConditionFailedException("You cannot kick members from your team whilst you are raidable.")
 
-            team.permissions.remove(player.uniqueId)
+            team.permissions.remove(target)
             team.members.removeIf {
-                it.uniqueId == player.uniqueId
+                it.uniqueId == target
             }
-            player.sendMessage("${CC.RED}You have been kicked from ${team.name}.")
+            if (Bukkit.getPlayer(target) != null) Bukkit.getPlayer(target).sendMessage("${CC.RED}You have been kicked from ${team.name}.")
             team.broadcast("${CC.LIGHT_PURPLE}${player.name}${CC.YELLOW} has kicked ${CC.LIGHT_PURPLE}${ScalaStoreUuidCache.username(target)}${CC.SEC} from the team.")
         }
     }
@@ -218,10 +220,9 @@ object TeamCommand : GoodCommand()
     @Description("Show information on a team")
     fun show(player: Player, @Default("self") team: Team) {
         player.sendMessage("${CC.GRAY}${CC.STRIKE_THROUGH}${"-".repeat(52)}")
-        player.sendMessage(team.getName(player))
-        player.sendMessage("")
-        if (team is PlayerTeam)
-        {
+        if (team is PlayerTeam) {
+            player.sendMessage("${team.getName(player)} ${CC.GRAY}- ${CC.SEC}Members: ${CC.PRI}${team.onlineMemberCount}/${team.size}")
+            player.sendMessage("")
             player.sendMessage("${CC.SEC}Leader: ${CC.WHITE}${(if (team.offlineMembers.contains(team.leader.uniqueId)) CC.GRAY else CC.GREEN) + team.leader.name}")
             if (team.leaders.isNotEmpty()) player.sendMessage("${CC.SEC}Co-Leaders: ${CC.WHITE}${
                 team.leaders.joinToString(
@@ -233,18 +234,44 @@ object TeamCommand : GoodCommand()
                     ","
                 ) { (if (team.offlineMembers.contains(it.uniqueId)) CC.GRAY else CC.GREEN) + it.name }
             }")
-            if (team.members.filter { it.role == TeamMemberRole.MEMBER }.isNotEmpty()) player.sendMessage("${CC.SEC}Members: ${CC.WHITE}${
+            if (team.members.any { it.role == TeamMemberRole.MEMBER }) player.sendMessage("${CC.SEC}Members: ${CC.WHITE}${
                 team.members.filter { it.role == TeamMemberRole.MEMBER }.joinToString(
                     ","
                 ) { (if (team.offlineMembers.contains(it.uniqueId)) CC.GRAY else CC.GREEN) + it.name }
             }")
 
-            if (team.isMember(player.uniqueId)) {
-                player.sendMessage("${CC.SEC}Balance: ${CC.BLUE}$${team.balance}")
+            if (team.isMember(player.uniqueId))
+            {
+                if (team.announcement != null) player.sendMessage("${CC.SEC}Announcement: ${CC.PRI}${team.announcement}")
+                if (team.discord != null) player.sendMessage("${CC.SEC}Discord: ${CC.PRI}${team.discord}")
+                player.sendMessage("${CC.SEC}Balance: ${CC.GREEN}$${team.balance} ${CC.GRAY}- ${CC.SEC}Kills: ${CC.RED}0 ${CC.GRAY}- ${CC.SEC}Lives: ${CC.LIGHT_PURPLE}0")
             }
-            player.sendMessage(("${CC.SEC}Deaths until Raidable: ${CC.RED}${Team.DTR_FORMAT.format(team.deathsUntilRaidable)}"))
+            player.sendMessage("${CC.SEC}Founded on: ${CC.WHITE}${TimeUtil.formatIntoFullCalendarString(Date(team.foundedOn))}")
+            player.sendMessage(("${CC.SEC}Deaths until Raidable: ${CC.RED}${team.getDTRFormatted()}"))
             if (team.regenTime > System.currentTimeMillis()) {
                 player.sendMessage("${CC.SEC}Regeneration: ${CC.PRI}${TimeUtil.formatIntoDetailedString(((team.regenTime - System.currentTimeMillis()) / 1000).toInt())}")
+            }
+
+            player.sendMessage("${CC.SEC}Raidable: ${TextUtil.stringifyBoolean(team.raidable, TextUtil.FormatType.YES_NO)}")
+            if (team.home == null) player.sendMessage("${CC.SEC}Home: ${CC.PRI}Not Set")
+            else player.sendMessage("${CC.SEC}Home: ${CC.PRI}${team.home!!.blockX}, ${team.home!!.blockZ}")
+        } else {
+            player.sendMessage(team.getName(player))
+            player.sendMessage("")
+        }
+        if (team is SystemTeam) {
+            if (team.claims.isNotEmpty()) {
+                val claim = team.claims.first()
+                player.sendMessage("${CC.SEC}Location: ${CC.PRI}${claim.x3}, ${claim.z3}")
+            }
+            if (team.hasFlag(SystemFlag.SAFE_ZONE)) {
+                player.sendMessage("${CC.GRAY}This area is a safezone. This means you are protected from all forms of damage.")
+            }
+        }
+        if (team.ownsLocation(player.location)) {
+            player.sendMessage("${CC.SEC}You are currently in this teams territory.")
+            if (team is PlayerTeam && TeamService.findTeamByPlayer(player.uniqueId) != null) {
+                FancyMessage().withMessage("${CC.SEC}Click here to focus this team.").andCommandOf(ClickEvent.Action.RUN_COMMAND, "/team focus ${team.name}").sendToPlayer(player)
             }
         }
         player.sendMessage("${CC.GRAY}${CC.STRIKE_THROUGH}${"-".repeat(52)}")
@@ -272,6 +299,18 @@ object TeamCommand : GoodCommand()
         TeamListPaginatedResult.display(player, TeamService.teams.filterIsInstance<PlayerTeam>().filter {
             it.onlineMemberCount > 0
         }, page, "team list %s")
+    }
+
+    @Subcommand("announcement|message|msg|alert|")
+    @Description("Update your teams announcement message")
+    fun announcement(player: Player, announcement: String, @Default("self") team: Team) {
+        if ((team is PlayerTeam && !team.hasPermission(player.uniqueId, TeamMemberPermission.UPDATE_ANNOUNCEMENT)) && !player.hasPermission("foxtrot.team.management")) throw ConditionFailedException("You are not a member of ${team.name} so you cannot deposit to it.")
+        if (team is SystemTeam) throw ConditionFailedException("You cannot set the announcement of a system team.")
+
+        if (team is PlayerTeam) {
+            team.broadcast("${CC.SEC}${player.name} has updated the team announcement to ${CC.PRI}${announcement}${CC.SEC}.")
+            team.announcement = announcement
+        }
     }
 
     @Subcommand("deposit|d|addmoney")
@@ -380,6 +419,16 @@ object TeamCommand : GoodCommand()
     fun channel(player: Player, channel: ChatMode) {
         ChatModePersistMap[player.uniqueId] = channel
         player.sendMessage("${CC.SEC}You are now in ${CC.PRI}${channel.name}${CC.SEC} chat.")
+    }
+
+    @Subcommand("focus|target")
+    fun focus(player: Player, target: Team) {
+        if (target is SystemTeam) throw ConditionFailedException("You cannot focus a system team.")
+        val team = TeamService.findTeamByPlayer(player.uniqueId) ?: throw ConditionFailedException("You cannot focus players whilst you are not in a team.")
+        if (team == target) throw ConditionFailedException("You cannot focus your own team.")
+
+        team.focused = target.identifier
+        team.broadcast("${CC.SEC}Your team is now focused on the team ${CC.PRI}${target.name}${CC.SEC}.")
     }
 
     @Subcommand("home|hq|go")

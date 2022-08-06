@@ -30,6 +30,9 @@ class Claim : Iterable<Coordinate?>
         corner2.blockZ
     )
 
+    val x3: Int get() = (x1 + x2) / 2
+    val z3: Int get() = (z1 + z2) / 2
+
     constructor(copyFrom: Claim)
     {
         world = copyFrom.world

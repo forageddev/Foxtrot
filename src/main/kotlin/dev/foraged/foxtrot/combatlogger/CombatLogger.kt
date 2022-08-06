@@ -9,13 +9,14 @@ import net.evilblock.cubed.entity.EntityHandler
 import net.evilblock.cubed.entity.npc.NpcEntity
 import net.evilblock.cubed.util.CC
 import org.bukkit.Material
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer
 import org.bukkit.entity.Player
 
-class CombatLogger(val owner: Player) : NpcEntity(listOf(
-    "",
+class CombatLogger(owner: Player) : NpcEntity(listOf(
+    "{empty}",
     "${CC.B_YELLOW}Combat Logger",
     "${CC.RED}${owner.name}",
-    ""
+    "{empty}"
 ), owner.location)
 {
     var uniqueId = owner.uniqueId
@@ -30,12 +31,12 @@ class CombatLogger(val owner: Player) : NpcEntity(listOf(
         leggings = owner.inventory.leggings
         boots = owner.inventory.boots
         itemInHand = if (owner.itemInHand.type == Material.AIR) null else owner.itemInHand
-        updateTextureByUsername(owner.name) { _, _ ->
-
-        }
 
         initializeData()
         EntityHandler.trackEntity(this)
+
+        val property = ((owner) as CraftPlayer).handle.profile.properties["textures"].first()
+        updateTexture(property.value, property.signature)
     }
 
     override fun isDamageable(): Boolean {
@@ -47,10 +48,10 @@ class CombatLogger(val owner: Player) : NpcEntity(listOf(
         health -= if (amount == 0.0) 1.5 else amount
 
         if (health <= 0.0) {
-            contents.filterNotNull().forEach {
+            contents.filterNotNull().filterNot { it.type == Material.AIR }.forEach {
                 location.world.dropItemNaturally(location, it)
             }
-            armorContents.filterNotNull().forEach {
+            armorContents.filterNotNull().filterNot { it.type == Material.AIR }.forEach {
                 location.world.dropItemNaturally(location, it)
             }
 

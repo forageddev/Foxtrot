@@ -20,7 +20,7 @@ class KothGameTask : Runnable
             if (game.controllingPlayer != null) {
                 if (game.controllingPlayer!!.isDead || !game.controllingPlayer!!.isOnline || !game.captureZone.contains(game.controllingPlayer!!)) {
                     game.controllingPlayer = null
-                } else if (game.remainingMillis % 600 == 0L && game.remainingMillis != game.captureTime && game.remainingMillis != 0L) {
+                } else if ((game.remainingMillis / 100) % 600 == 0L && game.remainingMillis != game.captureTime && game.remainingMillis != 0L && !game.formatTimeRemaining().contains("0")) {
                     Bukkit.broadcastMessage("${KothGame.CHAT_PREFIX}${CC.SEC}The game ${CC.PRI}${game.name}${CC.SEC} is currently being contested. ${CC.GRAY}(${game.formatTimeRemaining()})")
                 }
 

@@ -12,7 +12,7 @@ import org.bukkit.entity.Player
 import java.text.DecimalFormat
 import java.util.*
 
-abstract class Team(override val identifier: UUID, var name: String, var color: ChatColor = ChatColor.WHITE) : IDataStoreObject
+abstract class Team(override val identifier: UUID, var name: String, var color: ChatColor = ChatColor.WHITE, val foundedOn: Long = System.currentTimeMillis()) : IDataStoreObject
 {
     companion object {
         val CHAT_PREFIX = "${CC.B_PRI}[Team] "

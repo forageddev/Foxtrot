@@ -5,34 +5,40 @@ import dev.foraged.foxtrot.classes.PvPClass
 import dev.foraged.foxtrot.classes.PvPClassService
 import dev.foraged.foxtrot.map.CobblestonePersistMap
 import dev.foraged.foxtrot.map.ore.impl.DiamondPersistableMap
+import dev.foraged.foxtrot.team.claim.LandBoard
+import dev.foraged.foxtrot.team.impl.PlayerTeam
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
+import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.text.TextUtil
+import org.bukkit.ChatColor
+import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
+import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.inventory.PlayerInventory
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 
 @Listeners
-object MinerClass : PvPClass("Miner", 10, listOf())
+object MinerClass : PvPClass("Miner", ChatColor.AQUA,10, listOf())
 {
     const val Y_HEIGHT = 20
+    const val ULTIMATE_RADIUS = 1
     val noDamage = mutableMapOf<String, Int>()
     val invis = mutableMapOf<String, Int>()
 
     override fun getScoreboardLines(player: Player): List<String>
     {
-        return listOf(
-            "${CC.B_BLUE}Class${CC.GRAY}: ${CC.RED}Miner",
-            " ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.BLUE}Diamonds: ${CC.RED}${DiamondPersistableMap[player.uniqueId] ?: 0}",
-            " ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.BLUE}Cobble: ${CC.SEC}${TextUtil.stringifyBoolean(CobblestonePersistMap[player.uniqueId] ?: false)}"
-        )
+        return super.getScoreboardLines(player).toMutableList().also {
+            it.add("${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.WHITE}Diamonds: ${CC.AQUA}${DiamondPersistableMap[player.uniqueId] ?: 0}")
+        }
     }
 
     override fun qualifies(armor: PlayerInventory) : Boolean
@@ -89,6 +95,41 @@ object MinerClass : PvPClass("Miner", 10, listOf())
         invis.remove(player.name)
     }
 
+    @EventHandler
+    fun onPlayerInteract(event: PlayerInteractEvent) {
+        if (!PvPClassService.hasKitOn(event.player, this)) return
+        if (event.action.name.contains("RIGHT") && isUltimateReady(event.player)) {
+            activateUltimate(event.player)
+
+            Tasks.delayed(10 * 20L) {
+                deactivateUltimate(event.player)
+            }
+        }
+    }
+
+    @EventHandler
+    fun onMine(event: BlockBreakEvent) {
+        val player = event.player
+        if (event.block.type != Material.DIAMOND_ORE) return
+        if (!PvPClassService.hasKitOn(player, this)) return
+
+        if (isUltimateActive(player)) {
+            val origin = event.block.location
+
+            for (x in origin.blockX - ULTIMATE_RADIUS..origin.blockX + ULTIMATE_RADIUS) {
+                for (y in origin.blockY - ULTIMATE_RADIUS..origin.blockY + ULTIMATE_RADIUS) {
+                    for (z in origin.blockZ - ULTIMATE_RADIUS..origin.blockZ + ULTIMATE_RADIUS) {
+                        val block = Location(origin.world, x.toDouble(), y.toDouble(), z.toDouble())
+                        val team = LandBoard.getTeam(block)
+                        if (team == null || team is PlayerTeam && team.isMember(player.uniqueId)) {
+                            block.block.breakNaturally()
+                        }
+                    }
+                }
+            }
+        } else increaseUltimate(player)
+    }
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onEntityDamage(event: EntityDamageEvent) {
         if (event.entity !is Player) return
@@ -130,14 +171,14 @@ object MinerClass : PvPClass("Miner", 10, listOf())
         if (event.to.blockY <= Y_HEIGHT) { // Going below 20
             if (!invis.containsKey(player.name)) {
                 invis[player.name] = 10
-                player.sendMessage("${CC.BLUE}Miner Invisibility${CC.YELLOW} will be activated in 10 seconds!")
+                player.sendMessage("${CC.BLUE}Miner Invisibility${CC.YELLOW} will be activated in 10 seconds.")
             }
         } else if (event.to.blockY > Y_HEIGHT) { // Going above 20
             if (invis.containsKey(player.name)) {
                 noDamage.remove(player.name)
                 invis.remove(player.name)
                 player.removePotionEffect(PotionEffectType.INVISIBILITY)
-                player.sendMessage("${CC.BLUE}Miner Invisibility${CC.YELLOW} has been removed!")
+                player.sendMessage("${CC.BLUE}Miner Invisibility${CC.YELLOW} has been removed.")
             }
         }
     }

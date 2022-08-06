@@ -86,7 +86,7 @@ object TeamListener : Listener
         val team = LandBoard.getTeam(event.block.location) ?: return
         if (team is SystemTeam) event.isCancelled = true
         if (team is PlayerTeam) event.isCancelled = !team.isMember(event.player.uniqueId)
-        if (event.isCancelled) event.player.sendMessage("${CC.YELLOW}You cannot break blocks in ${team.getName(event.player)}${CC.YELLOW}'s territory!")
+        if (event.isCancelled) event.player.sendMessage("${CC.YELLOW}You cannot place blocks in ${team.getName(event.player)}${CC.YELLOW}'s territory!")
     }
 
     @EventHandler(ignoreCancelled = true) // normal priority
@@ -97,6 +97,7 @@ object TeamListener : Listener
         val team = LandBoard.getTeam(event.block.location) ?: return
 
         if (team is SystemTeam) {
+            if (event.block.type == Material.OBSIDIAN && team.hasFlag(SystemFlag.DTC)) return  // don't concern ourselves with obsidian breaks in dtc events
             if (event.block.type == Material.GLOWSTONE && team.hasFlag(SystemFlag.GLOWSTONE)) return  // don't concern ourselves with glowstone breaks in glowstone mountains
             if (team.hasFlag(SystemFlag.ROAD) && event.block.y <= 40) return  // allow players to mine under roads
         }

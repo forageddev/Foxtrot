@@ -17,7 +17,7 @@ abstract class OrePersistableMap(
     mongoName: String,
     private val color: String,
     vararg val types: Material
-) : IntegerPersistMap(keyPrefix, mongoName, true, Bukkit.getServerName()), Listener
+) : IntegerPersistMap("${Bukkit.getServerName()}$keyPrefix", mongoName, true, Bukkit.getServerName()), Listener
 {
     val displayName: String get() {
         return color + mongoName.split(".")[1]

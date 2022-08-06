@@ -10,8 +10,7 @@ import org.bukkit.event.entity.PlayerDeathEvent
 
 @RegisterMap
 @Listeners
-object KillsPersistMap : IntegerPersistMap("Kills", "Kills", true, Bukkit.getServerName()), Listener
-{
+object KillsPersistMap : IntegerPersistMap("${Bukkit.getServerName()}Kills", "Kills", true, Bukkit.getServerName()), Listener {
     @EventHandler
     fun onDeath(event: PlayerDeathEvent) {
         if (event.entity.killer != null) increment(event.entity.killer.uniqueId)

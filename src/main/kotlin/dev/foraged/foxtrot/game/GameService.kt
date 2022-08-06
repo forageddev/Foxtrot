@@ -2,6 +2,7 @@ package dev.foraged.foxtrot.game
 
 import dev.foraged.commons.persist.PluginService
 import dev.foraged.foxtrot.FoxtrotExtendedPlugin
+import dev.foraged.foxtrot.game.ctf.CTFGame
 import dev.foraged.foxtrot.game.dtc.DTCGame
 import dev.foraged.foxtrot.game.koth.KothGame
 import gg.scala.flavor.service.Close
@@ -17,6 +18,7 @@ object GameService : PluginService {
     val games = mutableListOf<Game>()
     val kothStorage: DataStoreObjectController<KothGame> = DataStoreObjectControllerCache.create()
     val dtcStorage: DataStoreObjectController<DTCGame> = DataStoreObjectControllerCache.create()
+    val ctfStorage: DataStoreObjectController<CTFGame> = DataStoreObjectControllerCache.create()
 
     @Configure
     override fun configure()
@@ -27,13 +29,18 @@ object GameService : PluginService {
         dtcStorage.loadAll(DataStoreStorageType.MONGO).thenAccept {
             it.values.forEach(this::registerGame)
         }
+        ctfStorage.loadAll(DataStoreStorageType.MONGO).thenAccept {
+            it.values.forEach(this::registerGame)
+        }
     }
 
     @Close
     fun close() {
         games.forEach {
+            it.stop(null)
             if (it is KothGame) kothStorage.save(it, DataStoreStorageType.MONGO)
             if (it is DTCGame) dtcStorage.save(it, DataStoreStorageType.MONGO)
+            if (it is CTFGame) ctfStorage.save(it, DataStoreStorageType.MONGO)
         }
     }
 
@@ -45,6 +52,8 @@ object GameService : PluginService {
     fun deleteGame(game: Game) {
         games.remove(game)
         if (game is KothGame) kothStorage.delete(game.identifier, DataStoreStorageType.MONGO)
+        if (game is DTCGame) dtcStorage.delete(game.identifier, DataStoreStorageType.MONGO)
+        if (game is CTFGame) ctfStorage.delete(game.identifier, DataStoreStorageType.MONGO)
     }
 
     fun findGameByName(name: String) : Game? {

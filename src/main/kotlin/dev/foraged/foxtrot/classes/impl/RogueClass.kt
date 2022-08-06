@@ -8,8 +8,11 @@ import dev.foraged.foxtrot.map.cooldown.nopersist.SpawnTagMap
 import dev.foraged.foxtrot.map.cooldown.nopersist.pvpclass.rogue.RogueBackstabMap
 import dev.foraged.foxtrot.map.cooldown.nopersist.pvpclass.rogue.RogueJumpMap
 import dev.foraged.foxtrot.map.cooldown.nopersist.pvpclass.rogue.RogueSpeedMap
+import dev.foraged.foxtrot.map.ore.impl.DiamondPersistableMap
 import dev.foraged.foxtrot.team.enums.SystemFlag
+import dev.foraged.foxtrot.ui.FoxtrotScoreboardProvider
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.time.TimeUtil
 import org.bukkit.*
 import org.bukkit.entity.Player
@@ -23,8 +26,16 @@ import org.bukkit.potion.PotionEffectType
 import kotlin.math.abs
 
 @Listeners
-object RogueClass : PvPClass("Rogue", 10, listOf(Material.SUGAR, Material.FEATHER))
+object RogueClass : PvPClass("Rogue", ChatColor.GREEN, 10, listOf(Material.SUGAR, Material.FEATHER))
 {
+
+    override fun getScoreboardLines(player: Player): List<String>
+    {
+        return super.getScoreboardLines(player).toMutableList().also {
+            if (RogueSpeedMap.isOnCooldown(player.uniqueId)) it.add("${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.WHITE}Speed: ${color}${FoxtrotScoreboardProvider.formatDuration(RogueSpeedMap.getCooldown(player.uniqueId))}")
+            if (RogueJumpMap.isOnCooldown(player.uniqueId)) it.add("${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.WHITE}Jump: ${color}${FoxtrotScoreboardProvider.formatDuration(RogueJumpMap.getCooldown(player.uniqueId))}")
+        }
+    }
     override fun qualifies(armor: PlayerInventory): Boolean
     {
         return wearingAllArmor(armor) &&

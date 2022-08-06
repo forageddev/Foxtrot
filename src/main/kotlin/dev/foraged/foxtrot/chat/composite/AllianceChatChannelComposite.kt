@@ -2,8 +2,8 @@ package dev.foraged.foxtrot.chat.composite
 
 import com.minexd.core.bukkit.chat.ChatChannelComposite
 import dev.foraged.foxtrot.team.TeamService
+import net.evilblock.cubed.message.FancyMessage
 import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.bukkit.FancyMessage
 import org.bukkit.entity.Player
 import org.bukkit.event.player.AsyncPlayerChatEvent
 

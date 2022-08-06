@@ -22,7 +22,6 @@ class DTCGame(
     name: String,
     val point: Location,
     var points: Int = 100,
-    override var active: Boolean = false
 ) : Game(
     name = name
 ), Listener
@@ -30,6 +29,7 @@ class DTCGame(
     var startTime = 0L
     var trackedPoints = mutableMapOf<UUID, Int>()
     var nextRegeneration: Long = 0
+    override var active: Boolean = false
 
     companion object {
         val CHAT_PREFIX = "${CC.B_PRI}[DestroyTheCore] "
@@ -45,7 +45,7 @@ class DTCGame(
 
     override fun getScoreboardLines(): List<String>
     {
-        return listOf("${CC.BD_GREEN}${name}${CC.GRAY}: ${CC.GREEN}${points}")
+        return listOf("${CC.WHITE}${name}: ${CC.GREEN}${points}")
     }
 
     override fun stop(winner: Player?)
@@ -58,7 +58,7 @@ class DTCGame(
                 } after being contestable for ${CC.PRI}${TimeUtil.formatIntoDetailedString(((System.currentTimeMillis() - startTime) / 1000).toInt())}${CC.SEC}."
             )
             Bukkit.broadcastMessage("$CHAT_PREFIX${CC.SEC}Top Three Destroyers: ")
-            trackedPoints.entries.sortedBy { it.value }.forEachIndexed { i, it ->
+            trackedPoints.entries.sortedByDescending { it.value }.forEachIndexed { i, it ->
                 if (i > 2) return@forEachIndexed
                 Bukkit.broadcastMessage("$CHAT_PREFIX${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.SEC}#${i + 1} ${CC.PRI}${ScalaStoreUuidCache.username(it.key)}${CC.SEC} mined the core ${CC.PRI}${it.value}${CC.SEC} times.")
             }

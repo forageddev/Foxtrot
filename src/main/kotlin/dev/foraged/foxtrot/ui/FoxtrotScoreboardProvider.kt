@@ -37,10 +37,10 @@ object FoxtrotScoreboardProvider : ScoreboardAdapter()
         // if kitmap add stats
         if (MapService.KIT_MAP) {
             board.add("${CC.B_PRI}Statistics")
-            board.add(" ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.SEC}Kills${CC.GRAY}: ${CC.WHITE}${KillsPersistMap[player.uniqueId] ?: 0}")
-            board.add(" ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.SEC}Deaths${CC.GRAY}: ${CC.WHITE}${DeathsPersistMap[player.uniqueId] ?: 0}")
+            board.add(" ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.WHITE}Kills: ${CC.PRI}${KillsPersistMap[player.uniqueId] ?: 0}")
+            board.add(" ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.WHITE}Deaths: ${CC.PRI}${DeathsPersistMap[player.uniqueId] ?: 0}")
             if ((KillstreakPersistMap[player.uniqueId] ?: 0) > 0) {
-                board.add(" ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.SEC}Streak${CC.GRAY}: ${CC.WHITE}${KillstreakPersistMap[player.uniqueId] ?: 0}")
+                board.add(" ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.WHITE}Streak: ${CC.PRI}${KillstreakPersistMap[player.uniqueId] ?: 0}")
             }
         }
         for (game in GameService.games) {
@@ -48,9 +48,12 @@ object FoxtrotScoreboardProvider : ScoreboardAdapter()
         }
 
         if (MapService.SOTW_ACTIVE) {
-            if (MapService.SOTW_ENABLED.contains(player.uniqueId)) board.add("${CC.B_RED}Start Of The World:")
-            else board.add("${CC.B_GREEN}Start Of The World:")
-            board.add(" ${CC.GRAY}${Constants.DOT_SYMBOL} ${CC.RED}${formatDuration(MapService.SOTW_EXPIRES)}")
+            if (MapService.SOTW_ENABLED.contains(player.uniqueId)) board.add("${CC.WHITE}SOTW: ${CC.RED}${formatDuration(MapService.SOTW_EXPIRES)}")
+            else board.add("${CC.WHITE}SOTW: ${CC.GREEN}${formatDuration(MapService.SOTW_EXPIRES)}")
+        }
+
+        if (MapService.EOTW_START_ACTIVE) {
+            board.add("${CC.WHITE}EOTW: ${CC.RED}${formatDuration(MapService.EOTW_STARTS)}")
         }
 
         if (PvPClassService.getPvPClass(player) != null) {
@@ -58,56 +61,55 @@ object FoxtrotScoreboardProvider : ScoreboardAdapter()
         }
 
         if (ArcherClass.isMarked(player)) {
-            board.add("${CC.B_GOLD}Archer Mark${CC.GRAY}: ${CC.RED}${formatDuration(ArcherClass.getMarkedTime(player))}")
+            board.add("${CC.WHITE}Mark: ${CC.GOLD}${formatDuration(ArcherClass.getMarkedTime(player))}")
         }
 
         if (EnderpearlMap.isOnCooldown(player.uniqueId)) {
-            board.add("${CC.BL_PURPLE}Enderpearl${CC.GRAY}: ${CC.RED}${formatDuration(EnderpearlMap.getCooldown(player.uniqueId))}")
+            board.add("${CC.WHITE}Enderpearl: ${CC.YELLOW}${formatDuration(EnderpearlMap.getCooldown(player.uniqueId))}")
         }
 
         if (AbilityCooldownMap.isOnCooldown(player.uniqueId)) {
-            board.add("${CC.B_AQUA}Ability${CC.GRAY}: ${CC.RED}${formatDuration(AbilityCooldownMap.getCooldown(player.uniqueId))}")
+            board.add("${CC.WHITE}Ability: ${CC.AQUA}${formatDuration(AbilityCooldownMap.getCooldown(player.uniqueId))}")
         }
 
         if (AppleMap.isOnCooldown(player.uniqueId)) {
-            board.add("${CC.B_YELLOW}Apple${CC.GRAY}: ${CC.RED}${formatDuration(AppleMap.getCooldown(player.uniqueId))}")
+            board.add("${CC.WHITE}Apple: ${CC.YELLOW}${formatDuration(AppleMap.getCooldown(player.uniqueId))}")
         }
 
         if (LogoutMap.isOnCooldown(player.uniqueId)) {
-            board.add("${CC.B_RED}Logout${CC.GRAY}: ${CC.RED}${formatDuration(LogoutMap.getCooldown(player.uniqueId))}")
+            board.add("${CC.WHITE}Logout: ${CC.RED}${formatDuration(LogoutMap.getCooldown(player.uniqueId))}")
         }
 
         if (TeamStuckMap.isOnCooldown(player.uniqueId)) {
-            board.add("${CC.BD_RED}Stuck${CC.GRAY}: ${CC.RED}${formatDuration(TeamStuckMap.getCooldown(player.uniqueId))}")
+            board.add("${CC.WHITE}Stuck: ${CC.BD_RED}${formatDuration(TeamStuckMap.getCooldown(player.uniqueId))}")
         }
 
         if (TeamHomeMap.isOnCooldown(player.uniqueId)) {
-            board.add("${CC.B_BLUE}Home${CC.GRAY}: ${CC.RED}${formatDuration(TeamHomeMap.getCooldown(player.uniqueId))}")
+            board.add("${CC.WHITE}Home: ${CC.BLUE}${formatDuration(TeamHomeMap.getCooldown(player.uniqueId))}")
         }
 
         if (OpplePersistableMap.isOnCooldown(player.uniqueId)) {
-            board.add("${CC.B_GOLD}Gopple${CC.GRAY}: ${CC.RED}${formatDuration(OpplePersistableMap.getCooldown(player.uniqueId))}")
+            board.add("${CC.WHITE}Gopple: ${CC.GOLD}${formatDuration(OpplePersistableMap.getCooldown(player.uniqueId))}")
         }
 
         if (SpawnTagMap.isOnCooldown(player.uniqueId)) {
-            board.add("${CC.B_RED}Spawn Tag${CC.GRAY}: ${CC.RED}${formatDuration(SpawnTagMap.getCooldown(player.uniqueId))}")
+            board.add("${CC.WHITE}Spawn Tag: ${CC.RED}${formatDuration(SpawnTagMap.getCooldown(player.uniqueId))}")
         }
 
         if (PvPTimerPersistableMap.isOnCooldown(player.uniqueId)) {
-            board.add("${CC.B_GREEN}Protection${CC.GRAY}: ${CC.RED}${formatDuration(PvPTimerPersistableMap.getCooldown(player.uniqueId))}")
+            board.add("${CC.WHITE}PvP Timer: ${CC.GREEN}${formatDuration(PvPTimerPersistableMap.getCooldown(player.uniqueId))}")
         }
 
-        board.add("")
-        board.add("${CC.SEC}${Constants.SITE_LINK}")
         board.add(CC.SB_BAR + "----")
-        if (board.size == 4) {
+        if (board.size == 2) {
             board.clear()
         }
     }
 
-    private fun formatDuration(long: Long?) : String {
+    fun formatDuration(long: Long?) : String {
         val seconds = ((long!! - System.currentTimeMillis()) / 1000).toInt()
 
-        return if (seconds > 60) TimeUtil.formatIntoMMSS(seconds) else "${((10.0 * seconds.toDouble()).roundToInt() / 10.0).toString().replace(".0", "")}s"
+        return TimeUtil.formatIntoAbbreviatedString(seconds)
+        //return if (seconds > 60) TimeUtil.formatIntoMMSS(seconds) else "${((10.0 * seconds.toDouble()).roundToInt() / 10.0).toString().replace(".0", "")}s"
     }
 }

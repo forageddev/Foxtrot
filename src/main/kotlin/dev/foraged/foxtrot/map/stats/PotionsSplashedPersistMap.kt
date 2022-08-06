@@ -11,7 +11,7 @@ import org.bukkit.event.entity.PotionSplashEvent
 
 @RegisterMap
 @Listeners
-object PotionsSplashedPersistMap : IntegerPersistMap("PotionsSplashed", "Potions_Splashed", true, Bukkit.getServerName()), Listener
+object PotionsSplashedPersistMap : IntegerPersistMap("${Bukkit.getServerName()}PotionsSplashed", "Potions_Splashed", true, Bukkit.getServerName()), Listener
 {
     @EventHandler
     fun onSplash(event: PotionSplashEvent) {

@@ -28,12 +28,14 @@ object MapService : PluginService
 
     val KIT_MAP = true
 
+    var EOTW_STARTS: Long = -1
+    val EOTW_START_ACTIVE: Boolean get() = EOTW_STARTS > System.currentTimeMillis()
+    var EOTW_ACTIVE: Boolean = false
+
     var SOTW_EXPIRES: Long = -1
     var SOTW_ENABLED = mutableSetOf<UUID>()
-    val SOTW_ACTIVE: Boolean
-        get() {
-            return SOTW_EXPIRES > System.currentTimeMillis()
-        }
+    val SOTW_ACTIVE: Boolean get() = SOTW_EXPIRES > System.currentTimeMillis()
+
 
     fun getRegion(ownerTo: Team?, location: Location): RegionData
     {

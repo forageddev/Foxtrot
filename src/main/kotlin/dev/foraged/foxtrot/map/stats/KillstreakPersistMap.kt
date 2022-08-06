@@ -10,7 +10,7 @@ import org.bukkit.event.entity.PlayerDeathEvent
 
 @RegisterMap
 @Listeners
-object KillstreakPersistMap : IntegerPersistMap("Killstreak", "Killstreak", true, Bukkit.getServerName()), Listener
+object KillstreakPersistMap : IntegerPersistMap("${Bukkit.getServerName()}Killstreak", "Killstreak", true, Bukkit.getServerName()), Listener
 {
     @EventHandler
     fun onDeath(event: PlayerDeathEvent) {

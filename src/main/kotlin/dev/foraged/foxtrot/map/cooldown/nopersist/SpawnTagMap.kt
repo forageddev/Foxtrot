@@ -17,7 +17,7 @@ import java.util.*
 object SpawnTagMap : CooldownMap(30), Listener
 {
     override fun startCooldown(uuid: UUID, seconds: Int) {
-        if (!isOnCooldown(uuid)) Bukkit.getPlayer(uuid).sendMessage("${CC.SEC}You have been spawn-tagged for ${CC.RED}${seconds}${CC.YELLOW} seconds!")
+        if (!isOnCooldown(uuid)) Bukkit.getPlayer(uuid).sendMessage("${CC.YELLOW}You have been spawn-tagged for ${CC.RED}${seconds}${CC.YELLOW} seconds.")
 
         super.startCooldown(uuid, seconds)
     }

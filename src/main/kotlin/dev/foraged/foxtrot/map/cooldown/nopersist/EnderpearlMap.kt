@@ -61,7 +61,7 @@ object EnderpearlMap : CooldownMap(16), Listener
             event.isCancelled = true
 
             thrower.itemInHand.amount++
-            thrower.sendMessage("${CC.RED}You cannot use this for another ${CC.BOLD}$sec${CC.RED} seconds!")
+            thrower.sendMessage("${CC.RED}You cannot use this for another ${CC.BOLD}$sec${CC.RED} seconds.")
             thrower.updateInventory()
         }
     }

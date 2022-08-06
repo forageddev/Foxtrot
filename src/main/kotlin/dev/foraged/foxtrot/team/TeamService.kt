@@ -36,6 +36,14 @@ object TeamService : PluginService
         FoxtrotExtendedPlugin.instance.logger.info("[Team] Unregistered team with name ${team.name}")
     }
 
+    fun findTeam(uuid: UUID) : Team?
+    {
+        for (team in teams) {
+            if (team.identifier == uuid) return team
+        }
+        return null
+    }
+
     fun findTeamByName(name: String?): Team?
     {
         for (team in teams)

@@ -18,6 +18,8 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.player.PlayerTeleportEvent
+import org.github.paperspigot.Title
+import java.awt.TextComponent
 
 @Listeners
 object TraverseListener : Listener
@@ -130,10 +132,15 @@ object TraverseListener : Listener
             {
                 nowEntering.command("/t i " + ownerTo.name).tooltip(CC.GREEN.toString() + "View team info")
             }
-            nowEntering.then(" (").color(ChatColor.YELLOW).then(if (toReduceDeathban) "Non-Deathban" else "Deathban")
-                .color(if (toReduceDeathban) ChatColor.GREEN else ChatColor.RED).then(")").color(
-                    ChatColor.YELLOW
-                )
+            val dbText = if (toReduceDeathban) "Non-Deathban" else "Deathban"
+            val dbColor = if (toReduceDeathban) ChatColor.GREEN else ChatColor.RED
+
+            event.player.showTitle(
+                net.md_5.bungee.api.chat.TextComponent.fromLegacyText(to.getName(event.player)),
+                net.md_5.bungee.api.chat.TextComponent.fromLegacyText("${CC.YELLOW}This territory is ($dbColor$dbText${CC.YELLOW})"),
+                20, 20, 20
+            )
+            nowEntering.then(" (").color(ChatColor.YELLOW).then(dbText).color(dbColor).then(")").color(ChatColor.YELLOW)
 
             // send both
             nowLeaving.send(event.player)

@@ -14,6 +14,11 @@ class KothGame(
     val height: Int,
     val captureZone: Cuboid,
     var captureTime: Long,
+    var color: String = when (name.lowercase()) {
+        "citadel" -> CC.DARK_PURPLE
+        "eotw" -> CC.RED
+        else -> CC.BLUE
+    },
     override var active: Boolean = false
 ) : Game(name = name) {
     companion object {
@@ -31,11 +36,16 @@ class KothGame(
     var controllingPlayer: Player? = null
         set(value)
         {
-            if (value == null && !finished) {
-                Bukkit.broadcastMessage("$CHAT_PREFIX${CC.SEC}The game ${CC.PRI}${name}${CC.SEC} has been knocked. ${CC.GRAY}(${formatTimeRemaining()})")
-                graceTime = System.currentTimeMillis() + 5000
-            } else {
-                Bukkit.broadcastMessage("$CHAT_PREFIX${CC.SEC}The game ${CC.PRI}${name}${CC.SEC} is now being contested. ${CC.GRAY}(${formatTimeRemaining()})")
+            if (!finished)
+            {
+                if (value == null)
+                {
+                    Bukkit.broadcastMessage("$CHAT_PREFIX${CC.SEC}The game ${CC.PRI}${name}${CC.SEC} has been knocked. ${CC.GRAY}(${formatTimeRemaining()})")
+                    graceTime = System.currentTimeMillis() + 5000
+                } else
+                {
+                    Bukkit.broadcastMessage("$CHAT_PREFIX${CC.SEC}The game ${CC.PRI}${name}${CC.SEC} is now being contested. ${CC.GRAY}(${formatTimeRemaining()})")
+                }
             }
 
             time = System.currentTimeMillis()
@@ -67,14 +77,12 @@ class KothGame(
 
     override fun getScoreboardLines(): List<String>
     {
-        return listOf("${if (name.contains("Citadel")) CC.BD_PURPLE else CC.B_BLUE}${name}${CC.GRAY}: ${CC.RED}${formatTimeRemaining()}")
+        return listOf("${CC.WHITE}${name}: ${color}${formatTimeRemaining()}")
     }
 
     fun formatTimeRemaining() : String {
         val duration = if (controllingPlayer == null) captureTime else remainingMillis
 
-        return if (duration > 3600000) TimeUtil.formatIntoAbbreviatedString((duration  / 1000).toInt())
-        else if (duration > 60000) TimeUtil.formatIntoMMSS((duration / 1000).toInt())
-        else SECONDS_FORMATTER.format(duration / 1000).replace(".0", "s")
+        return TimeUtil.formatIntoAbbreviatedString((duration  / 1000).toInt())
     }
 }

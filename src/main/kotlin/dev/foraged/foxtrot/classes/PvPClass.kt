@@ -1,9 +1,13 @@
 package dev.foraged.foxtrot.classes
 
 import com.google.common.collect.HashBasedTable
+import dev.foraged.commons.persist.CooldownMap
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
+import net.evilblock.cubed.util.text.ProgressBarBuilder
+import net.evilblock.cubed.util.text.TextUtil
 import org.bukkit.Bukkit
+import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
@@ -16,8 +20,9 @@ import org.bukkit.inventory.PlayerInventory
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.util.*
+import kotlin.random.Random
 
-abstract class PvPClass(val name: String, val warmup: Int, val consumables: List<Material>) : Listener
+abstract class PvPClass(val name: String, val color: ChatColor, val warmup: Int, val consumables: List<Material>) : Listener
 {
     companion object {
         val restores: HashBasedTable<UUID, PotionEffectType, PotionEffect> = HashBasedTable.create()
@@ -30,13 +35,42 @@ abstract class PvPClass(val name: String, val warmup: Int, val consumables: List
     }
 
     val siteLink: String = "${Constants.SITE_LINK}/classes/${name.lowercase()}"
+    val ultimatePercentages = mutableMapOf<UUID, Double>()
+    val ultimateActivated = mutableListOf<UUID>()
 
     open fun apply(player: Player) {}
     open fun tick(player: Player) {}
     open fun remove(player: Player) {}
-    open fun canApply(player: Player) : Boolean {return true}
-    open fun itemConsumed(player: Player, type: Material) : Boolean {return true}
-    open fun getScoreboardLines(player: Player) : List<String> {return listOf("${CC.B_BLUE}Class${CC.GRAY}: ${CC.RED}$name") }
+    open fun canApply(player: Player) : Boolean = true
+    open fun itemConsumed(player: Player, type: Material) : Boolean = true
+    open fun getScoreboardLines(player: Player) : List<String> {
+        return listOf(
+            "${color.toString() + CC.B}Class",
+            " ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT}${CC.WHITE} Type: $color$name",
+            " ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT}${CC.WHITE} Ultimate: $color${
+                TextUtil.colorPercentage(ultimatePercentages[player.uniqueId] ?: 0.0)
+            }${(ultimatePercentages[player.uniqueId] ?: 0.0).toString().split(".")[0]}%")
+    }
+
+    open fun activateUltimate(player: Player) {
+        ultimatePercentages[player.uniqueId] = 0.0
+        ultimateActivated.add(player.uniqueId)
+    }
+
+    open fun isUltimateActive(player: Player) : Boolean = ultimateActivated.contains(player.uniqueId)
+    open fun deactivateUltimate(player: Player) = ultimateActivated.remove(player.uniqueId)
+    open fun increaseUltimate(player: Player, amount: Double = Random.nextInt(3, 8).toDouble()) {
+        var asf = (ultimatePercentages[player.uniqueId] ?: 0.0) + amount
+        if (asf > 100) asf = 100.0
+
+        ultimatePercentages[player.uniqueId] = asf
+    }
+
+    open fun isUltimateReady(player: Player) : Boolean =  (ultimatePercentages[player.uniqueId] ?: 0.0) >= 100.0
+
+    open fun getActionBarText(player: Player) : String {
+        return "${CC.B_AQUA}$name Ultimate ${CC.GRAY}${Constants.DOUBLE_ARROW_RIGHT} ${CC.RED}${ProgressBarBuilder.DEFAULT.build(ultimatePercentages[player.uniqueId] ?: 0.0)}"
+    }
 
     abstract fun qualifies(armor: PlayerInventory) : Boolean
     fun wearingAllArmor(armor: PlayerInventory) : Boolean {
