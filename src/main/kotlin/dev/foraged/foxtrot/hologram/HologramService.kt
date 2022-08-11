@@ -9,6 +9,7 @@ import org.bukkit.event.Listener
 @Listeners
 object HologramService : Listener {
 
+    val types = listOf("kills", "deaths", "killstreak")
     val controller: DataStoreObjectController<FoxtrotHologram> = DataStoreObjectControllerCache.create()
 
     fun registerHologram(hologram: FoxtrotHologram) {

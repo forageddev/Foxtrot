@@ -15,7 +15,7 @@ object MaxKillstreakPersistMap : IntegerPersistMap("${Bukkit.getServerName()}Hig
     @EventHandler
     fun onDeath(event: PlayerDeathEvent) {
         if (event.entity.killer != null) {
-            if ((KillsPersistMap[event.entity.killer.uniqueId] ?: 0) > (this[event.entity.killer.uniqueId] ?: 0))
+            if ((KillstreakPersistMap[event.entity.killer.uniqueId] ?: 0) > (this[event.entity.killer.uniqueId] ?: 0))
             increment(event.entity.killer.uniqueId)
         }
     }
